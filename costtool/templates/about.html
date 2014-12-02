@@ -1,0 +1,20 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block body_block %}
+<div class="hero-unit">
+    <h1>CBCSE Cost Tool Kit</h1>
+                Write here something about the tool. Why have we developed it. How does the tool can be helpful for the user. Who are the intended users. Something, something<strong>{{ boldmessage }}</strong><br />
+
+    <img src="{% static "pencil_graph.jpg" %}" alt="Picture of Cost Tool" /> <!-- New line -->
+     <br />
+     <br />
+</div>
+{% endblock %}
+
+{% block footer_block %}
+            CBCSE Cost Tool Kit © has been developed by the Center for Benefit-Cost Studies of Education<br />
+            TEACHERS COLLEGE • COLUMBIA UNIVERSITY<br />
+            BOX 181, 525 WEST 120TH STREET, NEW YORK, N.Y. 10027-6696<br />
+            (212) 678-3259 • FAX (212) 678-3473 <br />
+            WEB www.cbcse.org • EMAIL cbcse@tc.columbia.edu <br />
+{% endblock %}

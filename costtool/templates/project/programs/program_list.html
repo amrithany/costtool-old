@@ -1,0 +1,63 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block body_block %}
+
+<div class="hero-unit">
+    <div class="container">
+       <h4> Project: {{project.projectname}}</h4>
+       <h4>Type of Analysis: {{project.typeanalysis}}</h4>
+       <h4>Type of Cost: {{project.typeofcost}}</h4>
+    </div>
+    <br />
+    <br />
+    <h4 class="form-signin-heading">Programs:</h4>
+    <h4> Click on the program you want to work on </h4>
+        <table class="table table-condensed">
+                  <thead>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Short Name</th>
+
+                    {% for prog in program  %}
+                            <tr onmouseover="javascript:style.background='#dcfac9'" onmouseout="javascript:style.background='#DCDCDC'" bgcolor="#DCDCDC">
+                            <td><input type="checkbox" id="{{prog.id}}" value="unchecked" onclick="setId(this);"  style="margin-left:auto; margin-right:auto;"></td>
+                            <td>{{prog.progname}}</td>
+                            <td>{{prog.progshortname}}</td>
+                        </tr>
+                    {% endfor %}
+                    <script type="text/javascript">
+                       var passvar = 000;
+                       var proj = {{project.id}};
+                       function setId(chkBox){
+                          var inputs = document.getElementsByTagName("input");
+                          for (i = 0; i<inputs.length; i++ ) {
+                             if (inputs[i].type == 'checkbox'){
+                                if (inputs[i].id != chkBox.id) {
+                                   inputs[i].checked = false;
+                                }
+                                else { inputs[i].checked = true;}
+                             }
+                          }
+                          passvar = chkBox.id;
+                       }
+
+                       function PasstoView () {
+                           if (passvar == 000){
+                             alert('Select or Add a Program to work on');}
+                          else {
+                             document.location.href = "/project/programs/effect/" + proj + "/" + passvar + "/tabbedview.html";}
+                       }
+
+                      function AddProg () {
+                          document.location.href = "/project/programs/add_program.html";
+                      }
+
+                   </script>
+                  </thead>
+        </table>
+        <input class="btn btn-primary" type="button" name="goto" value="Go to Program" onclick="PasstoView();">
+        <input class="btn btn-primary" type="button" name="add" value="Add New Program" onclick="AddProg();">
+</div>
+
+{% endblock %}
+

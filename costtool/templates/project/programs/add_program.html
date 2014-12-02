@@ -1,0 +1,24 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block body_block %}
+
+<div class="hero-unit">
+    <div class="container">
+             <form class="form-signin span8" id="programform" method="post" action="/project/programs/add_program.html" enctype="multipart/form-data">
+             {% csrf_token %}
+             <h2 class="form-signin-heading">Program</h2>
+             {{ programform.as_p }}
+             <br />
+             <input class="btn btn-primary" type="submit" name="submit" value="Save" />
+             <input class="btn btn-primary" type="button" name="cancel" value="Cancel" onclick="cancelout();"/>
+           </form>
+           <script type="text/javascript">
+
+              function cancelout() {
+                document.location.href = "/project/programs/"  + {{project_id}} + "/program_list.html";
+              }
+           </script>
+
+     </div>
+</div>      
+{% endblock %}

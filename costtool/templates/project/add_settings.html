@@ -1,0 +1,26 @@
+{% extends 'index.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block body_block %}
+
+<div class="hero-unit">
+    <div class="container">
+             <form class="form-signin span8" id="settingsform" method="post"  enctype="multipart/form-data">
+             {% csrf_token %}
+             <h2 class="form-signin-heading">Settings</h2>
+             {% crispy frm1 %}
+             <br />
+
+             <!-- Provide a button to click to submit the form. -->
+             <input class="btn btn-primary" type="submit" name="submit" value="Save" />
+             <a href="/project/project_list.html"> <input class="btn btn-primary" type="button" name="cancel" value="Cancel" /></a>
+             </form>
+      </div>
+       <script type="text/javascript">
+         function gotofunc(){
+            document.location.href = "indices.html";
+         }
+       </script>
+</div>
+{% endblock %}
+

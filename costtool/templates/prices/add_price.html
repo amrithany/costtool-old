@@ -1,0 +1,20 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block body_block %}
+
+<div class="hero-unit">
+    <div class="container">
+             <form class="form-signin span8" id="pricesform" method="post" action="/prices/add_price.html" enctype="multipart/form-data">
+             {% csrf_token %}
+             <h3 class="form-signin-heading">Add Price</h3>
+             {{ pricesform.as_p }}
+             <br />
+
+             <!-- Provide a button to click to submit the form. -->
+             <input class="btn btn-primary" type="submit" name="submit" value="Save" />
+             <a href="/prices/price_list.html"> <input class="btn btn-primary" type="button" name="cancel" value="Cancel" /></a>
+             </form>
+      </div>
+</div>
+{% endblock %}
+

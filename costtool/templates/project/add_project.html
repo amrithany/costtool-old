@@ -1,0 +1,20 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block body_block %}
+
+<div class="hero-unit">
+    <div class="container">
+             <form class="form-signin span8" id="projectform" method="post" action="/project/add_project.html" enctype="multipart/form-data">
+             {% csrf_token %}
+             <h2 class="form-signin-heading">My Project</h2>
+             {{ projectform.as_p }}
+             <br />
+
+             <!-- Provide a button to click to submit the form. -->
+             <input class="btn btn-primary" type="submit" name="submit" value="Save" />
+             <a href="/project/project_list.html"> <input class="btn btn-primary" type="button" name="cancel" value="Cancel" /></a>
+             </form>
+      </div>
+</div>
+{% endblock %}
+

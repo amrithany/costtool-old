@@ -1,0 +1,133 @@
+{% extends 'index.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block body_block %}
+
+<div class="hero-unit">
+    <div class="container">
+       <h4>Project:  {{project}}</h4>
+       <h4>Type of Analysis: {{project.typeanalysis}}</h4>
+       <h4>Type of Cost: {{project.typeofcost}}</h4>
+    </div>
+    <br />
+
+   <div class="container">
+       <h4>Name of the Program:  {{program}}</h4>
+       <h4>Short Name: {{program.progshortname}}</h4>
+    </div>
+    <br />
+
+    <div class="row">
+    <div class="col-12 col-sm-12 col-lg-12">
+        <ul class="nav nav-tabs" id="myTab">
+            <li class="active"><a href="#form1" data-toggle="tab" data-value="#form1">Program Description</a></li>
+            <li><a href="#form2" data-toggle="tab" data-value="#form2">Effectiveness Information</a></li>
+        </ul>
+    </div>
+
+    <div id="content" class="tab-content">
+       <div class="tab-pane active" id="form1">
+            <form class="form-signin span8" id="form1" method="post"  enctype="multipart/form-data">
+             {% csrf_token %}
+             {% crispy frm1 %}
+             <div id="extra-content">
+             <table>
+                <thead>
+                  <tr>
+                     <th>Year</th>
+                     <th>Number of participants</th>
+                  </tr>
+                </thead>
+                <tbody class="product-instances">
+                  <form method="post" action="">
+                  {{ partform.management_form }}
+
+                  {% for form in partform %}
+                        {{ form.id }}
+                      <tr>
+                         <td>{{ form.yearnumber }}</td>
+                         <td>{{ form.noofparticipants }}</td>
+                      </tr>
+                  {% endfor %}
+                  </form>
+                 </tbody>
+             </table>
+             </div>
+             <input class="btn btn-primary" type="submit" name="submit" value="Save" />
+             <input class="btn btn-primary" type="button" name="Temp" value="Temp" />
+             <input class="btn btn-primary" type="button" name="cancel" value="Cancel" onclick="cancelout();"/>
+             </form>
+        </div>
+
+        <div class="tab-pane" id="form2">
+            <form class="form-signin span8" id="form2" method="post" enctype="multipart/form-data">
+             {% csrf_token %}
+                {% crispy frm2 %}
+                <input class="btn btn-primary" type="submit" name="submit" value="Save" />
+                <input class="btn btn-primary" type="button" name="cancel" value="Cancel" onclick="cancelout();"/>
+             </form>
+        </div>
+      
+      <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script> 
+      <script type="text/javascript">
+           var proj = {{project.id}};
+           var prog = {{program.id}};
+
+   	   $('.nav-tabs a').click(function (e) {
+              $(this).tab('show');
+           });
+     
+           function cancelout() {
+              document.location.href = "/project/programs/"  + prog + "/program_list.html";
+           }
+    
+           $("form").ready(function() {
+               x = document.getElementById('id_lengthofprogram').value;
+               if (x == 'More than one year') {
+                 $("#id_numberofyears").show();
+                 $("#extra-content").show();
+               }
+               else {
+                 $("#id_numberofyears").hide();
+                 $("#extra-content").hide();
+               }
+           });
+
+           $('#id_lengthofprogram').change(function(){
+              x = document.getElementById('id_lengthofprogram').value;
+              if (x == 'One year or less'){
+                 $("#id_numberofyears").hide();
+              }
+              else {
+                 $("#id_numberofyears").show();
+              } 
+           });
+
+           $('#id_numberofyears').change(function(){
+              yrs = document.getElementById('id_numberofyears').value;
+              if (yrs > 1) {
+                    $("#extra-content").show();
+                 }
+                 else {
+                    $("#extra-content").hide();
+                 }
+
+           });
+           $("form").submit(function(){
+           //  alert(parseInt($('#id_' + ParticipantsPerYear + '-TOTAL_FORMS').val()));
+             //event.preventDefault();
+          });
+
+          function tempfunc(){
+             //var ttt = $('#id_' + form.prefix + '-TOTAL_FORMS').val();
+             //var form_count = {{partform.total_form_count}};
+             alert(participantsperyear_set-0-id);
+          }
+      </script>  
+      </div><!-- end content -->
+   </div><!-- end row -->
+</div>
+
+{% endblock %}
+

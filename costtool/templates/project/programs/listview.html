@@ -1,0 +1,41 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block body_block %}
+
+<div class="hero-unit">
+    <div class="container">
+       <h4>{{ a }} Project: {{current_project}}</h4>
+       <h4>Type of Analysis: {{current_project.typeanalysis}}</h4>
+    </div>
+    <br />
+    <br />
+    <h4 class="form-signin-heading">Programs:</h4>
+    <h4> Click on the program you want to work on </h4>
+        <table class="table table-condensed">
+                  <thead>
+                    <th>Name</th>
+                    <th>Short Name</th>
+
+                    {% for prog in programs  %}
+			    <tr onmouseover="javascript:style.background='#dcfac9'" onmouseout="javascript:style.background='#DCDCDC'" bgcolor="#DCDCDC" onclick="DoNav({{prog.id}});">
+                            <td>{{prog.progname}}</td>
+                            <td>{{prog.progshortname}}</td>
+                        </tr>
+                    {% endfor %}
+                    <script type="text/javascript">
+                    function DoNav(a)
+                    {
+                        //alert(a);
+                        //request.session["a"] = 123;
+                        document.location.href = "/project/programs/effect/tabbedview.html";
+                    }
+                    </script>
+
+                  </thead>
+        </table>
+
+   <a href="/project/programs/add_program.html"> <input class="btn btn-primary" type="button" name="goto" value="Add New Program" /></a>
+</div>
+
+{% endblock %}
+

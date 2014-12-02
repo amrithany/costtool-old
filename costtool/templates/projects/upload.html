@@ -1,0 +1,11 @@
+<form action="{% url 'project_upload' %}" method="post">                                                             
+  {% csrf_token %}
+  <label for="projectname"></label>
+  <input type="text" name="projectname" id="projectname" />
+  <input type="submit" />
+
+  {% csrf_token %}
+  <label for="type analysis"></label>
+  <input type="text" name="typeanalysis" id="typeanalysis" />
+  <input type="submit" />
+</form>

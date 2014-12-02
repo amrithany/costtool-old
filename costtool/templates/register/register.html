@@ -1,0 +1,24 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block body_block %}
+
+<div class="hero-unit">
+    <div class="container">
+        {% if registered %}
+             <p>Thank you for registering.</p>
+	{% else %}
+             <form class="form-signin span8" id="user_form" method="post" action="/project/project_list.html" enctype="multipart/form-data">
+
+             {% csrf_token %}
+             <h2 class="form-signin-heading">Register</h2>
+             {{ user_form.as_p }}
+             {{ profile_form.as_p }}
+             <br />
+             
+             <!-- Provide a button to click to submit the form. -->
+             <input class="btn btn-primary" type="submit" name="submit" value="Register" />
+              </form>
+        {% endif %}
+      </div>
+</div>
+{% endblock %}

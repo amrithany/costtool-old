@@ -1,0 +1,45 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block body_block %}
+
+<div class="hero-unit">
+    <div class="container">
+       <h4>Project:  {{current_project}}</h4>
+       <h4>Type of Analysis: {{current_project.typeanalysis}}</h4>
+    </div>
+    <br />
+    <br />
+    <h4 class="form-signin-heading">Program Description:</h4>
+    <h4> Click on the program you want to work on </h4>
+        <table class="table table-condensed">
+                  <thead>
+                    <th>Short Name</th>
+                    <th>Objective</th>
+                    <th>Subjects</th>
+                    <th>Description</th>
+                    <th>Number of Participants</th>
+
+                    {% for prog in programs  %}
+			    <tr onmouseover="javascript:style.background='#dcfac9'" onmouseout="javascript:style.background='#DCDCDC'" bgcolor="#DCDCDC" onclick="DoNav({{prog.id}});">
+                            <td>{{prog.progshortname}}</td>
+                            <td>{{prog.progobjective}}</td>
+                            <td>{{prog.progsubjects}}</td>
+                            <td>{{prog.progdescription}}</td>
+                            <td>{{prog.numberofparticipants}}</td>
+                        </tr>
+                    {% endfor %}
+                    <script type="text/javascript">
+                    function DoNav(a)
+                    {
+                        document.location.href = "/project/programs/effect/effectlistview.html";
+                    }
+                    </script>
+
+                  </thead>
+        </table>
+
+   <a href="/project/programs/add_program.html"> <input class="btn btn-primary" type="button" name="goto" value="Add New Program" /></a>
+</div>
+
+{% endblock %}
+

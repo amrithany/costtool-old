@@ -1,0 +1,28 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block body_block %}
+
+<div class="hero-unit"> 
+    <div class="container">
+        <form class="form-signin span8" id="login_form" method="post" action="/project/project_list.html" enctype="multipart/form-data">
+            {% csrf_token %}
+            <h2 class="form-signin-heading">Login</h2>
+            {% if bad_details %}
+                <p><strong>Your username and/or password were incorrect!</strong></p>
+            {% elif disabled_account %}
+                <p><strong>Your account is currently disabled; we can't log you in!</strong></p>
+            {% endif %}
+
+             Username: <input type="text" class="input-block-level" placeholder="Username" name="username" value="" size="50" />
+             <br />
+             Password: <input type="password" class="input-block-level" placeholder="Password" name="password" value="" size="50" />
+             <br />
+     
+             <!-- Provide a button to click to submit the form. -->
+             <input class="btn btn-primary" type="submit" name="submit" value="Login" />
+
+        </form>
+     </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+
+{% load static %} <!-- New line -->
+
+<html>
+
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- Bootstrap -->
+        <link href="{% static 'css/bootstrap-fluid-adj.css' %}" rel="stylesheet">
+        <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" media="screen">
+        <link href="{% static 'css/bootstrap-responsive.css' %}" rel="stylesheet">
+        <title>CBCSE Cost Tool Kit</title>
+    </head>
+
+    <body>
+        <div class="navbar navbar-inverse navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <h4 style="color:grey">CBCSE Cost Tool Kit ©</h4>
+                    <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                         <span class="icon-bar"></span>
+                         <span class="icon-bar"></span>
+                         <span class="icon-bar"></span>
+                     </button>
+                     <div class="nav-collapse collapse">
+                         <ul class="nav pull-right">
+                             <li> <a href="/prices/price_list.html">Prices</a></li>
+                             <li> <a href="/register/register.html">Register Here</a></li>        
+                             <li> <a href="/login/login.html">Login</a></li>
+                             <a href="about.html"></a>
+                         </ul>
+                     </div>
+           <!--/.nav-collapse -->
+           </div>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row-fluid">
+            <div class="span3">
+                <div class="well sidebar-nav">
+                <h5 style="color:darkblue;text-align:center">Learn more</h5>
+                <h5>Cost Tool Kit Manual</h5>
+                <h5>Tutorials</h5>
+                <h5>Examples</h5>
+                <h5>FAQs</h5>
+                <br /> <br />
+                <h5 style="color:darkblue;text-align:center">CBCSE Cost Tool Kit Terms & Policies</h5>
+                <h5>Statement of Rights & Responsibilities</h5>
+                <h5>Data Use Policy</h5>
+
+                </div>
+             <!--/.well -->
+            </div>
+            <!--/span-->
+            <div class="span9" >
+                {% block body_block %}
+                {% endblock %}
+	    </div>
+        </div>
+        <!--/row-->
+    </div>
+    <!--/.fluid-container-->
+    <script src="{% static 'js/jquery-2.0.3.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    </body>
+    <footer>
+        <div class="container" align="center">
+             {% block footer_block %}
+             {% endblock %}
+        </div>
+    </footer>
+</html>
+
