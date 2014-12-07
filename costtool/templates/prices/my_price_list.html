@@ -3,19 +3,17 @@
 {% block body_block %}
 
 <div class="hero-unit">
-    <h2 class="form-signin-heading">Database of Prices</h2>
-    <div class="table-responsive">
-        <h3 class="form-signin-heading">CBCSE Database of Educational Resource Prices</h3>
+    <h3 class="form-signin-heading">Database My Prices</h3>
             <table class="table table-condensed">
                 <thead>
                     <th></th>
                     <th>Ingredient</th>
-                    <th>Ed. Level</th>
+                    <th>Ed. Level</th> 
                     <th>Price</th>
                     <th>Unit of Measure</th>
                     <th>Sector</th>
                     <th>Category</th><br />
-                    {% for prc in allprices %}
+                    {% for prc in allprices2 %}
                         <tr onmouseover="javascript:style.background='#dcfac9'" onmouseout="javascript:style.background='#DCDCDC'" bgcolor="#DCDCDC">
                             <td><input type="checkbox" id="{{prc.id}}" value="unchecked" onclick="setId(this);"  style="margin-left:auto; margin-right:auto;"></td>
                             <td>{{prc.ingredient}}</td>
@@ -43,19 +41,40 @@
                           passvar = chkBox.id;
                        }
 
-
                        function PasstoView () {
                           if (passvar == 000){
                              alert('Select or Add a Price to view');}
                           else {
                              document.location.href = "/prices/" + passvar +"/view_price.html";}
                        }
-                   </script>
+
+                       function PasstoEdit () {
+                          if (passvar == 000){
+                             alert('Select a Price to edit');}
+                          else {
+                             document.location.href = "/prices/" + passvar +"/edit_price.html";}
+                       }
+
+                       function PasstoDel () {
+                          if (passvar == 000){
+                             alert('Select a Price to delete');}
+                          else {
+                             if (confirm('Are you sure you want to delete this price?')) {
+                                document.location.href = "/prices/" + passvar +"/del_price.html";
+                             }} 
+                       }
+
+                </script>
                </thead>
             </table>
             <input class="btn btn-primary" type="button" name="goto" value="View Price" onclick="PasstoView();">
-            <br><input type="button" name="button" style="background-color:orange" value="Export as Excel" />
+            <a href="/prices/add_price.html"> <input class="btn btn-primary" type="button" name="add" id="add" value="Add New Price" /></a>
+            <input class="btn btn-primary" type="button" name="button" value="Edit Price" onclick="PasstoEdit();"/>
+            <input class="btn btn-primary" type="button" name="button" value="Delete Price" onclick="PasstoDel();" /><br>
+            <input style="background-color:orange" type="button" name="button" value="Export as Excel" />
+            <input style="background-color:orange" type="button" name="button" value="Clear Database" />
     </div>
+
 </div>
 {% endblock %}
 

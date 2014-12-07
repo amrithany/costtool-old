@@ -42,9 +42,9 @@ class SettingsForm(forms.ModelForm):
     stateEstimates  = forms.ChoiceField(iquery_choices, required=False, widget=forms.Select(), label="In which geographical location do you want to express costs?")
     areaEstimates = forms.ChoiceField(areaquery_choices, required=False, widget=forms.Select(), label="")
     selectDatabase = forms.MultipleChoiceField(choices=(('CBCSE','CBCSE Database of Educational Resource Prices'),('My','Database My Prices')),required=False,label="Select which database of prices you will use (can select more than one):", widget=forms.CheckboxSelectMultiple())
-    limitEdn = forms.MultipleChoiceField(choices=choicesEdlevel,required=False,label="Educational Level", widget=forms.CheckboxSelectMultiple())
-    limitSector = forms.MultipleChoiceField(choices=choicesSector,required=False,label="Sector",widget=forms.CheckboxSelectMultiple())
-    limitYear = forms.MultipleChoiceField(choices=choicesYear,required=False,label="Year",widget=forms.CheckboxSelectMultiple())
+    limitEdn = forms.MultipleChoiceField(choices=choicesEdlevel,required=False,label="<strong>EDUCATIONAL LEVEL</strong>", widget=forms.CheckboxSelectMultiple())
+    limitSector = forms.MultipleChoiceField(choices=choicesSector,required=False,label="<strong>SECTOR</strong>",widget=forms.CheckboxSelectMultiple())
+    limitYear = forms.MultipleChoiceField(choices=choicesYear,required=False,label="<strong>YEAR</strong>",widget=forms.CheckboxSelectMultiple())
     hrsCalendarYr = forms.IntegerField(required=False,initial=2080,label="Number of hours in the calendar year: The calendar year consists of 2,080 working hours (52 weeks, 5 days a week, 8 hrs a day) according to the U.S. Bureau of Labor Statistics. This is used as the default number for the wage converter. However, if this number does not fit your requirements, you can enter a different number of hours for the calendar year in the following cell:")
     hrsAcademicYr = forms.IntegerField(required=False,initial=1440, label="Number of hours in the K-12 academic year: The academic year consists of 1,440 working hours (36 weeks, 5 days a week, 8 hrs a day) according to CBCSE. This is used as the default number for the wage converter. However, if this number does not fit your requirements, you can enter a different number of hours for the K-12 academic year in the following cell:")
     hrsHigherEdn = forms.IntegerField(required=False,initial=1560,label="Number of hours in the higher education academic year: The academic year consists of 1,560 working hours (39 weeks, 5 days a week, 8 hrs a day) according to CBCSE. This is used as the default number for the wage converter. However, if this number does not fit your requirements, you can enter a different number of hours for the higher education academic year in the following cell:")
@@ -75,7 +75,7 @@ class SettingsForm(forms.ModelForm):
             HTML("""<hr><p><strong>DEFINE PRICE SEARCH</strong></p>"""),
             'selectDatabase',
             HTML("""<br><p>Limit database of prices by the following criteria:</p>"""), 
-            Div( 
+            Div(
                 Row('limitEdn',   css_class='span6'),
                 Row('limitSector', css_class='span6'),
                 Row('limitYear',   css_class='span6'),

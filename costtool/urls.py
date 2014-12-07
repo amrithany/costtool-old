@@ -5,7 +5,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     # Examples:
-    url(r'^$', 'costtool.views.index', name='index'),
+    url(r'^$', 'costtool.views.about', name='about'),
     url(r'^projects/(?P<projects_id>\d+)/detail.html$',
         'costtool.views.project_detail', name='project_detail'),
 
@@ -13,6 +13,9 @@ urlpatterns = patterns('',
 
     url(r'^prices/add_price.html$', 'costtool.views.add_price', name='add_price'),
     url(r'^prices/price_list.html$', 'costtool.views.price_list', name='price_list'),
+    url(r'^prices/my_price_list.html$', 'costtool.views.my_price_list', name='my_price_list'),
+    url(r'^prices/prices.html$', 'costtool.views.prices', name='prices'),
+
     url(r'^prices/(?P<price_id>\d+)/view_price.html$', 'costtool.views.view_price', name='view_price'),
     url(r'^prices/(?P<price_id>\d+)/edit_price.html$', 'costtool.views.edit_price', name='edit_price'),
     url(r'^prices/(?P<price_id>\d+)/del_price.html$', 'costtool.views.del_price', name='del_price'),
@@ -39,6 +42,6 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     url(r'^register/register.html$', 'costtool.views.register', name='register'), 
     url(r'^login/login.html$', 'costtool.views.user_login', name='user_login'),
-    url(r'^about.html$', 'costtool.views.about', name='about'),
+    url(r'^index.html$', 'costtool.views.index', name='index'),
 )
 

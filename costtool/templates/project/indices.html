@@ -15,7 +15,12 @@
      <a href="geo.html"><input class="btn btn-primary" type="button" name="goto2" value="Edit geographical indices"></a>
      <br />
      <br />
-     <a href="add_settings.html"> <input class="btn btn-primary" type="button" name="cancel" value="Cancel" /></a>
+     <input class="btn btn-primary" type="button" name="cancel" value="Cancel" onclick="gotofunc()"/>
+       <script type="text/javascript">
+         function gotofunc(){
+            document.location.href = "/project/"+ {{project_id}} +"/add_settings.html";
+         }
+       </script>
 
 </div>
 {% endblock %}

@@ -8,7 +8,7 @@ class PriceResource(resources.ModelResource):
     class Meta:
         model = Prices
 
-class PriceAdmin(ImportMixin):
+class PriceAdmin(ImportExportModelAdmin):
     resource_class = PriceResource
     pass
  

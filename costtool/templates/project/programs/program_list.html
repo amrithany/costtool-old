@@ -48,6 +48,16 @@
                              document.location.href = "/project/programs/effect/" + proj + "/" + passvar + "/tabbedview.html";}
                        }
 
+                       function PasstoDupl () {
+                           if (passvar == 000){
+                             alert('Select or Add a Program to duplicate');
+                           }
+                           else {
+                                alert('This will be done after all the screens are ready');
+                             }
+
+                       }
+
                       function AddProg () {
                           document.location.href = "/project/programs/add_program.html";
                       }
@@ -57,6 +67,7 @@
         </table>
         <input class="btn btn-primary" type="button" name="goto" value="Go to Program" onclick="PasstoView();">
         <input class="btn btn-primary" type="button" name="add" value="Add New Program" onclick="AddProg();">
+        <input class="btn btn-primary" type="button" name="dupl" value="Duplicate Program" onclick="PasstoDupl();">
 </div>
 
 {% endblock %}

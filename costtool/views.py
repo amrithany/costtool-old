@@ -36,7 +36,11 @@ def add_program(request):
             {'programform': programform,'project_id':project_id})
 
 def indices(request):
-    return render(request,'project/indices.html')
+    project_id = request.session['project_id']
+    return render(request,'project/indices.html',{'project_id':project_id})
+
+def prices(request):
+    return render(request,'prices/prices.html')
 
 def tabbedlayout(request,project_id,program_id):
     project = m.Projects.objects.get(pk=project_id)
@@ -303,13 +307,20 @@ def del_price(request, price_id):
 
 def price_list(request):
     allprices = m.Prices.objects.filter(priceProvider='CBCSE')
-    allprices2 = m.Prices.objects.filter(priceProvider='User')
 
     template = loader.get_template('prices/price_list.html')
-    context = Context({'allprices' : allprices, 'allprices2' : allprices2})
+    context = Context({'allprices' : allprices})
+    return HttpResponse(template.render(context))
+
+def my_price_list(request):
+    allprices2 = m.Prices.objects.filter(priceProvider='User')
+
+    template = loader.get_template('prices/my_price_list.html')
+    context = Context({'allprices2' : allprices2})
     return HttpResponse(template.render(context))
 
 def add_settings(request,project_id):
+    request.session['project_id'] = project_id
     context = RequestContext(request)
     try:
        setrec = m.Settings.objects.get(projectId=project_id)
