@@ -16,5 +16,5 @@ admin.site.register(m.Projects)
 admin.site.register(m.Programs)
 admin.site.register(m.Effectiveness)
 admin.site.register(UserProfile)
-admin.site.register(Prices)
+admin.site.register(Prices,PriceAdmin)
 

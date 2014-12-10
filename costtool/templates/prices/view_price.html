@@ -25,7 +25,20 @@
              </table>
              <br />
 
-             <a href="/prices/price_list.html"> <input class="btn btn-primary" type="button" name="cancel" value="Cancel" /></a>
+             <input class="btn btn-primary" type="button" name="cancel" value="Cancel" onclick="goBack()"/>
+             <input type="hidden" id="myField" name="temp" value="{{ price.priceProvider }}" />
+
+             <script language="Javascript">
+                function goBack(){
+                   var pp = document.getElementById("myField").value;
+                   if (pp == 'CBCSE'){
+                      document.location.href = "/prices/price_list.html";
+                   }
+                   else {
+                      document.location.href = "/prices/my_price_list.html";
+                   }
+                }
+             </script>
       </div>
 </div>
 {% endblock %}

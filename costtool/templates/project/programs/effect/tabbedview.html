@@ -9,6 +9,7 @@
        <h4>Project:  {{project}}</h4>
        <h4>Type of Analysis: {{project.typeanalysis}}</h4>
        <h4>Type of Cost: {{project.typeofcost}}</h4>
+       <input type="hidden" id="myField" name="temp" value="{{project.typeanalysis}}" />
     </div>
     <br />
 
@@ -21,8 +22,8 @@
     <div class="row">
     <div class="col-12 col-sm-12 col-lg-12">
         <ul class="nav nav-tabs" id="myTab">
-            <li class="active"><a href="#form1" data-toggle="tab" data-value="#form1">Program Description</a></li>
-            <li><a href="#form2" data-toggle="tab" data-value="#form2">Effectiveness Information</a></li>
+            <li class="active"><a href="#form1" id="Program" data-toggle="tab" data-value="#form1">Program Description</a></li>
+            <li><a href="#form2" data-toggle="tab" id="Effect" data-value="#form2">Effectiveness Information</a></li>
         </ul>
     </div>
 
@@ -55,8 +56,8 @@
              </table>
              </div>
              <input class="btn btn-primary" type="submit" name="submit" value="Save" />
-             <input class="btn btn-primary" type="button" name="Temp" value="Temp" />
              <input class="btn btn-primary" type="button" name="cancel" value="Cancel" onclick="cancelout();"/>
+
              </form>
         </div>
 
@@ -73,16 +74,16 @@
       <script type="text/javascript">
            var proj = {{project.id}};
            var prog = {{program.id}};
-
-   	   $('.nav-tabs a').click(function (e) {
-              $(this).tab('show');
-           });
-     
            function cancelout() {
-              document.location.href = "/project/programs/"  + prog + "/program_list.html";
+              document.location.href = "/project/programs/"  + proj + "/program_list.html";
            }
-    
+
            $("form").ready(function() {
+              anal  = document.getElementById("myField").value;
+              if (anal != 'Cost-Effectiveness Analysis') {
+                  $($('.nav-tabs').find("li")[1]).hide();
+                  $($('.nav-tabs').find('#form2')).hide();
+               }
                x = document.getElementById('id_lengthofprogram').value;
                if (x == 'More than one year') {
                  $("#id_numberofyears").show();
@@ -98,9 +99,11 @@
               x = document.getElementById('id_lengthofprogram').value;
               if (x == 'One year or less'){
                  $("#id_numberofyears").hide();
+                 $("#extra-content").hide();
               }
               else {
                  $("#id_numberofyears").show();
+                 $("#extra-content").show();
               } 
            });
 

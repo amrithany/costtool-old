@@ -50,11 +50,17 @@
                           else {
                              document.location.href = "/prices/" + passvar +"/view_price.html";}
                        }
+
+                       function importExcel () {
+                          document.location.href = "/prices/import_excel.html";
+                       }
+
                    </script>
                </thead>
             </table>
             <input class="btn btn-primary" type="button" name="goto" value="View Price" onclick="PasstoView();">
             <br><input type="button" name="button" style="background-color:orange" value="Export as Excel" />
+           <a href="/prices/prices.html"> <input type="button" style="background-color:green" name="goto2" value="Go Back" /></a>
     </div>
 </div>
 {% endblock %}

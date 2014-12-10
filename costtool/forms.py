@@ -91,7 +91,8 @@ class SettingsForm(forms.ModelForm):
 class GeographicalForm(forms.ModelForm):
     stateIndex = forms.CharField(required=False,label="State")
     areaIndex  = forms.CharField(required=False,label="Area")
-    geoIndex = forms.DecimalField(max_digits=6,decimal_places=2,required=False,label="Index")
+    #geoIndex = forms.DecimalField(max_digits=6,decimal_places=2,required=False,label="Index")
+    geoIndex = forms.CharField(required=False,label="Index")
 
     class Meta:
         model = GeographicalIndices
@@ -104,7 +105,7 @@ class GeographicalForm(forms.ModelForm):
 class GeographicalForm_orig(forms.ModelForm):
     stateIndex = forms.CharField(required=False,label="State")
     areaIndex  = forms.CharField(required=False,label="Area")
-    geoIndex = forms.DecimalField(max_digits=6,decimal_places=2,required=False,label="Index")
+    geoIndex = forms.CharField(required=False,label="Index")
 
     class Meta:
         model = GeographicalIndices
@@ -153,7 +154,7 @@ class ProgramDescForm(forms.ModelForm):
     progdescription = forms.CharField(required=False, widget=forms.Textarea(), label="Brief description:")
     numberofparticipants = forms.DecimalField(max_digits=6,decimal_places=2,min_value=0.01,label="Average number of participants:", error_messages = {'required': "The Average number of participants is required"})
     lengthofprogram = forms.ChoiceField(choices=(('One year or less', 'One year or less'), ('More than one year', 'More than one year')),initial = 'One year or less',label="Length of the program:")
-    numberofyears = forms.IntegerField(required=False, label="Number of years ")
+    numberofyears = forms.IntegerField(required=False, label="Number of years ",widget = forms.TextInput(attrs={'readonly':'readonly'}))
 
     class Meta:
         model = ProgramDesc
@@ -218,10 +219,19 @@ class PricesForm(forms.ModelForm):
     areaquery_choices =  [(id, id) for id in areaquery]
     choicesPersonnel = (('Hour','Hour'),('Day','Day'),('Week','Week'),('K-12 academic year','K-12 academic year'), ('Higher Ed academic year', 'Higher Ed academic year'),('Calendar year','Calendar year'))
     choicesNonPer = (('Inches','Inches'),('Meters','Meters'),('Sq. Ft.','Sq. Ft.'), ('Sq. Mt.', 'Sq. Mt.'),('Item','Item'))
-    category = forms.CharField(required=False,label="Select the category for this ingredient:")
+    catquery = Prices.objects.values_list('category', flat=True).distinct()
+    catquery_choices =  [(id, id) for id in catquery]
+    edquery = Prices.objects.values_list('edLevel', flat=True).distinct()
+    edquery_choices =  [(id, id) for id in edquery]
+    secquery = Prices.objects.values_list('sector', flat=True).distinct()
+    secquery_choices =  [(id, id) for id in secquery]
+
+
+    category = forms.ChoiceField(catquery_choices, required=False, widget=forms.Select(),label="Select the category for this ingredient:")
     ingredient  = forms.CharField(required=False,label="Name of the ingredient:")
-    edLevel = forms.CharField(required=False,label="Education level to be served:")
-    sector = forms.CharField(required=False,label="Sector:")
+    edLevel = forms.ChoiceField(edquery_choices, required=False, widget=forms.Select(), label="Education level to be served:")
+    sector = forms.ChoiceField(secquery_choices, required=False, widget=forms.Select(),label="Sector:")
+    #sector =  forms.CharField(widget=forms.Textarea(attrs('selectBoxOptions':';'.join(secquery_choices)))),label="Sector:",required=False)
     descriptionPrice = forms.CharField(required=False,label="Description:")
     unitMeasurePrice = forms.ChoiceField(choicesPersonnel, required=False, widget=forms.Select(),label="Unit of Measure:")
     price = forms.DecimalField(required=False, max_digits=6,decimal_places=2,min_value=0.01,label="Price per unit:")

@@ -12,6 +12,8 @@ from django.forms.models import inlineformset_factory, modelformset_factory
 
 from costtool import models as m
 from costtool.forms import PricesForm, UserForm, UserProfileForm, ProjectsForm, ProgramsForm, ProgramDescForm, ParticipantsForm, EffectForm,SettingsForm, GeographicalForm, GeographicalForm_orig, InflationForm, InflationForm_orig
+import xlrd
+import MySQLdb
 
 def add_program(request):
     project_id = request.session['project_id']
@@ -42,6 +44,9 @@ def indices(request):
 def prices(request):
     return render(request,'prices/prices.html')
 
+def imports(request):
+    return render(request,'prices/imports.html')
+
 def tabbedlayout(request,project_id,program_id):
     project = m.Projects.objects.get(pk=project_id)
     program = m.Programs.objects.get(pk=program_id)
@@ -54,7 +59,7 @@ def tabbedlayout(request,project_id,program_id):
         form1 = ProgramDescForm(request.POST)
         objectexists = False
     
-    PartFormSet = inlineformset_factory(m.ProgramDesc,m.ParticipantsPerYear,extra=1)
+    PartFormSet = inlineformset_factory(m.ProgramDesc,m.ParticipantsPerYear,extra=10)
     if objectexists:
         try:
             partform = PartFormSet(request.POST,request.FILES, instance=programdesc,prefix="partform" )
@@ -129,7 +134,7 @@ def program_list(request,project_id):
         project = m.Projects.objects.get(pk=project_id)
         program = m.Programs.objects.filter(projectId=project_id)
     except ObjectDoesNotExist:
-        raise Http404
+        return HttpResponse('Object does not exist!')
     return render_to_response(
             'project/programs/program_list.html',
             {'project':project,'program':program})
@@ -261,7 +266,7 @@ def add_price(request):
             priceProvider = pricesform.save(commit=False)
             priceProvider.priceProvider = 'User'
             priceProvider.save()
-            return HttpResponseRedirect('/prices/price_list.html')
+            return HttpResponseRedirect('/prices/my_price_list.html')
         else:
             print priceform.errors
 
@@ -290,7 +295,7 @@ def edit_price(request, price_id):
         if pricesform.is_valid():
             priceProvider = pricesform.save()
             priceProvider.save()
-            return HttpResponseRedirect('/prices/price_list.html')
+            return HttpResponseRedirect('/prices/my_price_list.html')
         else:
             print priceform.errors
     else:
@@ -303,7 +308,12 @@ def edit_price(request, price_id):
 def del_price(request, price_id):
     context = RequestContext(request)
     m.Prices.objects.get(pk=price_id).delete()
-    return HttpResponseRedirect('/prices/price_list.html')
+    return HttpResponseRedirect('/prices/my_price_list.html')
+
+def clear_prices(request):
+    context = RequestContext(request)
+    m.Prices.objects.filter(priceProvider='User').delete()
+    return HttpResponseRedirect('/prices/my_price_list.html')
 
 def price_list(request):
     allprices = m.Prices.objects.filter(priceProvider='CBCSE')
@@ -318,6 +328,175 @@ def my_price_list(request):
     template = loader.get_template('prices/my_price_list.html')
     context = Context({'allprices2' : allprices2})
     return HttpResponse(template.render(context))
+
+def import_excel(request):
+    # Open the workbook and define the worksheet
+    book = xlrd.open_workbook("/users/amritha/documents/DBofPrices.xls")
+    sheet = book.sheet_by_name("Ingredients")
+
+    # Establish a MySQL connection
+    database = MySQLdb.connect (host="localhost", user = "root", passwd = "", db = "costtool")
+
+    # Get the cursor, which is used to traverse the database, line by line
+    cursor = database.cursor()
+
+    # Create the INSERT INTO sql query
+    query = """INSERT INTO costtool_prices (priceProvider,category,ingredient,edLevel,sector,descriptionPrice,unitMeasurePrice,price,yearPrice,statePrice,areaPrice,sourcePriceData,urlPrice,lastChecked,nextCheckDate) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+
+    # Create a For loop to iterate through each row in the XLS file, starting at row 2 to skip the headers
+    for r in range(1, sheet.nrows):
+        priceProvider      = sheet.cell(r,0).value
+        category  = sheet.cell(r,1).value
+        ingredient          = sheet.cell(r,2).value
+        edLevel     = sheet.cell(r,3).value
+        sector       = sheet.cell(r,4).value
+        descriptionPrice = sheet.cell(r,5).value
+        unitMeasurePrice        = sheet.cell(r,6).value
+        price       = sheet.cell(r,7).value
+        yearPrice     = sheet.cell(r,8).value
+        statePrice        = sheet.cell(r,9).value
+        areaPrice         = sheet.cell(r,10).value
+        sourcePriceData          = sheet.cell(r,11).value
+        urlPrice   = sheet.cell(r,12).value
+        lastChecked   = sheet.cell(r,13).value
+        nextCheckDate   = sheet.cell(r,14).value
+
+        # Assign values from each row
+        values = (priceProvider,category,ingredient,edLevel,sector,descriptionPrice,unitMeasurePrice,price,yearPrice,statePrice,areaPrice,sourcePriceData,urlPrice,lastChecked,nextCheckDate)
+
+        # Execute sql Query
+        cursor.execute(query, values)
+
+    # Close the cursor
+    cursor.close()
+
+    # Commit the transaction
+    database.commit()
+
+    # Close the database connection
+    database.close()
+
+    columns = str(sheet.ncols)
+    rows = str(sheet.nrows)
+    return HttpResponseRedirect('/prices/imports.html')
+
+def import_geo(request):
+    # Open the workbook and define the worksheet
+    book = xlrd.open_workbook("/users/amritha/documents/GeographicalIndex.xlsx")
+    sheet = book.sheet_by_name("Sheet1")
+
+    # Establish a MySQL connection
+    database = MySQLdb.connect (host="localhost", user = "root", passwd = "", db = "costtool")
+
+    # Get the cursor, which is used to traverse the database, line by line
+    cursor = database.cursor()
+
+    # Create the INSERT INTO sql query
+    query = """INSERT INTO costtool_geographicalindices_orig (stateIndex, areaIndex, geoIndex) VALUES (%s, %s, %s)"""
+
+    # Create a For loop to iterate through each row in the XLS file, starting at row 2 to skip the headers
+    for r in range(1, sheet.nrows):
+        stateIndex      = sheet.cell(r,0).value
+        areaIndex  = sheet.cell(r,1).value
+        geoIndex          = sheet.cell(r,2).value
+        
+        # Assign values from each row
+        values = (stateIndex, areaIndex, geoIndex)
+
+        # Execute sql Query
+        cursor.execute(query, values)
+
+    # Close the cursor
+    cursor.close()
+
+    # Get the cursor, which is used to traverse the database, line by line
+    cursor = database.cursor()
+
+    # Create the INSERT INTO sql query    
+    query = """INSERT INTO costtool_geographicalindices (stateIndex, areaIndex, geoIndex) VALUES (%s, %s, %s)"""
+
+    # Create a For loop to iterate through each row in the XLS file, starting at row 2 to skip the headers
+    for r in range(1, sheet.nrows):
+        stateIndex      = sheet.cell(r,0).value
+        areaIndex  = sheet.cell(r,1).value
+        geoIndex          = sheet.cell(r,2).value
+        
+        # Assign values from each row        
+        values = (stateIndex, areaIndex, geoIndex)
+
+        # Execute sql Query
+        cursor.execute(query, values)
+
+    # Close the cursor
+    cursor.close()
+
+    # Commit the transaction
+    database.commit()
+
+    # Close the database connection
+    database.close()
+
+    columns = str(sheet.ncols)
+    rows = str(sheet.nrows)
+    return HttpResponseRedirect('/prices/imports.html')
+
+def import_inf(request):
+    # Open the workbook and define the worksheet
+    book = xlrd.open_workbook("/users/amritha/documents/InflationIndex.xlsx")
+    sheet = book.sheet_by_name("Sheet1")
+
+    # Establish a MySQL connection
+    database = MySQLdb.connect (host="localhost", user = "root", passwd = "", db = "costtool")
+
+    # Get the cursor, which is used to traverse the database, line by line
+    cursor = database.cursor()
+
+    # Create the INSERT INTO sql query
+    query = """INSERT INTO costtool_inflationindices_orig (yearCPI, indexCPI) VALUES (%s, %s)"""
+
+    # Create a For loop to iterate through each row in the XLS file, starting at row 2 to skip the headers
+    for r in range(1, sheet.nrows):
+        yearCPI      = sheet.cell(r,0).value
+        indexCPI  = sheet.cell(r,1).value
+
+        # Assign values from each row
+        values = (yearCPI, indexCPI)
+
+        # Execute sql Query
+        cursor.execute(query, values)
+
+    # Close the cursor
+    cursor.close()
+
+    # Get the cursor, which is used to traverse the database, line by line
+    cursor = database.cursor()
+
+    # Create the INSERT INTO sql query    
+    query = """INSERT INTO costtool_inflationindices (yearCPI, indexCPI) VALUES (%s, %s)"""
+
+    # Create a For loop to iterate through each row in the XLS file, starting at row 2 to skip the headers
+    for r in range(1, sheet.nrows):
+        yearCPI      = sheet.cell(r,0).value
+        indexCPI  = sheet.cell(r,1).value
+
+        # Assign values from each row
+        values = (yearCPI, indexCPI)
+
+        # Execute sql Query
+        cursor.execute(query, values)
+
+    # Close the cursor
+    cursor.close()
+
+    # Commit the transaction
+    database.commit()
+
+    # Close the database connection
+    database.close()
+
+    columns = str(sheet.ncols)
+    rows = str(sheet.nrows)
+    return HttpResponseRedirect('/prices/imports.html')
 
 def add_settings(request,project_id):
     request.session['project_id'] = project_id

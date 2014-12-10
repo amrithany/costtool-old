@@ -31,7 +31,7 @@ class Settings(m.Model):
 class GeographicalIndices(m.Model):
     stateIndex = m.CharField(max_length=2000,null=True, blank=True)
     areaIndex  = m.CharField(max_length=2000,null=True, blank=True)
-    geoIndex = m.DecimalField(max_digits=6,decimal_places=2,null=True,blank=True)
+    geoIndex = m.CharField(max_length=100,null=True,blank=True)
 
     def __unicode__(self):
         return self.stateIndex
@@ -39,21 +39,23 @@ class GeographicalIndices(m.Model):
 class GeographicalIndices_orig(m.Model):
     stateIndex = m.CharField(max_length=2000,null=True, blank=True)
     areaIndex  = m.CharField(max_length=2000,null=True, blank=True)
-    geoIndex = m.DecimalField(max_digits=6,decimal_places=2,null=True,blank=True)
+    #geoIndex = m.DecimalField(max_digits=6,decimal_places=2,null=True,blank=True)
+    geoIndex = m.CharField(max_length=100,null=True,blank=True)
 
     def __unicode__(self):
         return self.stateIndex
 
 class InflationIndices(m.Model):
     yearCPI  = m.CharField(max_length=10,null=True, blank=True)
-    indexCPI = m.DecimalField(max_digits=6,decimal_places=2,null=True,blank=True)
+    indexCPI = m.CharField(max_length=10,null=True,blank=True)
 
     def __unicode__(self):
         return unicode(self.yearCPI)
 
 class InflationIndices_orig(m.Model):
     yearCPI  = m.IntegerField(null=True, blank=True)
-    indexCPI = m.DecimalField(max_digits=6,decimal_places=2,null=True,blank=True)
+    #indexCPI = m.DecimalField(max_digits=6,decimal_places=2,null=True,blank=True)
+    indexCPI = m.CharField(max_length=10,null=True,blank=True)
 
     def __unicode__(self):
         return self.yearCPI
@@ -116,14 +118,14 @@ class Prices(m.Model):
     sector = m.CharField(max_length=256,null=True, blank=True)
     descriptionPrice = m.CharField(max_length=2000,null=True, blank=True)	
     unitMeasurePrice = m.CharField(max_length=256,null=True, blank=True)	
-    price = m.DecimalField(max_digits=6,decimal_places=2,null=True, blank=True)	
-    yearPrice = m.IntegerField(null=True, blank=True)	
+    price = m.CharField(max_length=100,null=True, blank=True)	
+    yearPrice = m.CharField(max_length=100,null=True, blank=True)	
     statePrice = m.CharField(max_length=256,null=True, blank=True)	
     areaPrice = m.CharField(max_length=256,null=True, blank=True)	
     sourcePriceData = m.CharField(max_length=256,null=True, blank=True)	
     urlPrice = m.CharField(max_length=2000,null=True, blank=True)	
-    lastChecked = m.DateField(null=True, blank=True)	
-    nextCheckDate = m.DateField(max_length=256,null=True, blank=True)
+    lastChecked = m.CharField(max_length=2000,null=True, blank=True)	
+    nextCheckDate = m.CharField(max_length=256,null=True, blank=True)
 
     def __unicode__(self):
         return unicode(self.priceProvider)
