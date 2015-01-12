@@ -1,0 +1,56 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block body_block %}
+
+<div class="hero-unit">
+    <div class="container">
+             {% csrf_token %}
+             <h2 class="form-signin-heading">Add ingredient</h2>
+             Use wage converter to adjust unit of measure if needed.
+             <br /><br />
+             
+             <table class="table table-condensed">
+                <tr> Unit of Measure: <input type="text" id="measure" readonly></tr><br />
+                <tr> Price per unit: <input type="text" id="price" readonly> </tr><br /><br />
+                 If you want to convert your price per unit to a different unit you can try using the wage converter.
+                <br /> <input type="button" style="background-color:green" name="goto3" value="Wage Converter" onclick="wage();"/> <br />
+                <br /> To which geographical location does this price correspond to? <br />
+                <tr>  {{price.statePrice}}  {{price.areaPrice}} </tr><br />
+                <tr> Year of listed price: {{price.yearPrice}} </tr><br />
+                <tr> Source: {{price.sourcePriceData}} </tr><br />
+             </table> 
+             <input type="button" style="background-color:green" name="goto2" value="< Back" onclick="back();"/>
+             <input type="button" style="background-color:green" name="goto" value="Next >>" onclick="Pass();" />
+             <input class="btn btn-primary" type="button" name="cancel" value="Cancel" onclick="cancelout();"/>
+           <script type="text/javascript">
+
+             if ({{new_price}} != 0){
+                document.getElementById('price').value = {{new_price}};
+                document.getElementById('measure').value = '{{new_measure}}';
+             }
+             else {
+                document.getElementById('price').value = {{price.price}};
+                document.getElementById('measure').value = '{{price.unitMeasurePrice}}';
+             }
+
+             function cancelout() {
+                document.location.href = "/project/programs/effect/"+ {{project_id}} +"/"+ {{program_id}} +"/tabbedview.html?activeform=costform";
+             }
+
+             function back(){
+                document.location.href ="/project/programs/costs/price_search_results.html?category=" + '{{cat}}' + "&edLevel=" + '{{edLevel}}' + "&sector=" + '{{sector}}' + "&ingredient=" + '{{ingredient}}' + "&search=Search";
+             }
+
+             function Pass(){
+                 document.location.href ="/project/programs/costs/"+{{price.id}}+"/price_benefits.html";
+             }   
+
+             function wage(){
+                 document.location.href ="/project/programs/costs/wage_converter.html";
+             }
+           </script>
+    </div>
+</div>
+{% endblock %}
+
+

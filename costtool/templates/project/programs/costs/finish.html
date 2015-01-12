@@ -1,0 +1,21 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block body_block %}
+
+<div class="hero-unit">
+    <div class="container">
+             {% csrf_token %}
+             <h2 class="form-signin-heading">Add ingredient</h2>
+              You have successfully added a new {{price.category}} ingredient called {{price.ingredient}}
+             <br /><br />
+             <input type="button" style="background-color:green" name="goto" value="Finish" onclick="Pass();" />
+           <script type="text/javascript">
+              function Pass() {
+               document.location.href = "/project/programs/effect/"+ {{project_id}} +"/"+ {{program_id}} +"/tabbedview.html?activeform=costform";
+              }
+           </script>
+    </div>
+</div>
+{% endblock %}
+
+

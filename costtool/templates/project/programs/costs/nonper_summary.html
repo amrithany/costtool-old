@@ -1,0 +1,82 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block body_block %}
+
+<div class="hero-unit">
+    <div class="container">
+             {% csrf_token %}
+             <h2 class="form-signin-heading">Add ingredient</h2>
+              Summary of price information for {{price.category}} ingredient: {{price.ingredient}}
+             <br /><br />
+             <table class="table table-condensed">
+                <tr> Category: {{ price.category }} </tr><br />
+                <tr> Education level to be served: {{ price.edLevel }} </tr><br />
+                <tr> Sector: {{ price.sector }} </tr><br />
+                <tr> Ingredient: {{ price.ingredient}} </tr><br />
+                <tr> Unit of measure: {{new_measure}} </tr><br />
+                <tr> Un-adjusted price: {{new_price}} </tr><br />
+             </table>
+             {% if pcount > 0 %}
+             <table>
+                 <thead>
+                 <tr>
+                 <th>Length of program (years)</th>
+                 <th>Quantity</th>
+                 <th>Percentage of usage</th>
+                 </tr>
+                 </thead>
+                 <form method="post" id="form"  enctype="multipart/form-data">
+                 <tbody class="product-instances">
+                     {% csrf_token %}
+                     {{ form.management_form }}
+                     {% for form in form %}
+                         {{ form.id }}
+                     <tr>
+                         <td>{{ form.yearQtyUsed}}</td>
+                         <td>{{ form.quantityUsed }}</td>
+                         <td>{{ form.percentageofUsage}}</td>
+                     </tr>
+                     {% endfor %}
+                 </tbody>
+                 </table>
+                 </br>
+                 Does this number stay fixed even if number of participants change? <br>
+                 <input type="radio" name="variableFixed" value="Fixed">Yes. This is a Fixed quantity. <br>
+                 <input type="radio" name="variableFixed" value="Variable" checked>No. This is a Variable quantity. <br>
+                 <input type="radio" name="variableFixed" value="Lumpy">No. This is a Lumpy quantity. <br></br>
+                 <input type="button" style="background-color:green" name="goto2" value="< Back" onclick="goback();"/>
+                 <input class="btn btn-primary" type="submit"  name="goto" value="Next >>"/>
+                 <input class="btn btn-primary" type="button" name="cancel" value="Cancel" onclick="cancelout();"/>
+                 </form>
+
+             {% else %}
+                 <form method="post" id="form" action="/project/programs/costs/summary.html" >
+                 <style type="text/css"> ul {list-style:none} </style>
+                 {% csrf_token %} 
+                 {{ form }}
+                 </br> 
+                 <input type="button" style="background-color:green" name="goto2" value="< Back" onclick="goback();"/>
+                 <input class="btn btn-primary" type="submit"  name="goto" value="Next >>"/>
+                 <input class="btn btn-primary" type="button" name="cancel" value="Cancel" onclick="cancelout();"/> 
+                </form>
+             {% endif %}
+           <script type="text/javascript">
+
+              function cancelout() {
+                 document.location.href = "/project/programs/effect/"+ {{project_id}} +"/"+ {{program_id}} +"/tabbedview.html?activeform=costform";
+              }
+
+              function Pass() {
+                 document.location.href = "/project/programs/costs/finish.html";
+              }
+
+              function goback() {
+                document.location.href = "/project/programs/costs/"  + {{price.id}} + "/price_benefits.html";
+              }
+
+           </script>
+    </div>
+</div>
+{% endblock %}
+
+

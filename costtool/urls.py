@@ -23,6 +23,7 @@ urlpatterns = patterns('',
     url(r'^prices/import_excel.html$', 'costtool.views.import_excel', name='import_excel'),
     url(r'^prices/import_geo.html$', 'costtool.views.import_geo', name='import_geo'),
     url(r'^prices/import_inf.html$', 'costtool.views.import_inf', name='import_inf'),
+    url(r'^prices/import_benefits.html$', 'costtool.views.import_benefits', name='import_benefits'),
 
     url(r'^project/add_project.html$', 'costtool.views.add_project', name='add_project'),
     url(r'^project/project_list.html$', 'costtool.views.project_list', name='project_list'),
@@ -36,11 +37,22 @@ urlpatterns = patterns('',
     url(r'^project/restore_inf.html$', 'costtool.views.restore_inf', name='restore_inf'),
     
     url(r'^project/programs/(?P<project_id>\d+)/program_list.html$','costtool.views.program_list', name='program_list'),
-
     url(r'^project/programs/add_program.html$', 'costtool.views.add_program', name='add_program'),
-
     url(r'^project/programs/effect/(?P<project_id>\d+)/(?P<program_id>\d+)/tabbedview.html$', 'costtool.views.tabbedlayout', name='tabbedlayout'),
 
+    url(r'^project/programs/costs/search_costs.html$', 'costtool.views.search_costs', name='search_costs'),
+    url(r'^project/programs/costs/price_search_results.html$', 'costtool.views.price_search', name='price_search'),
+    url(r'^project/programs/costs/(?P<price_id>\d+)/price_indices.html$', 'costtool.views.price_indices', name='price_indices'),
+    url(r'^project/programs/costs/(?P<price_id>\d+)/nonper_indices.html$', 'costtool.views.nonper_indices', name='nonper_indices'),
+    url(r'^project/programs/costs/(?P<price_id>\d+)/price_benefits.html$', 'costtool.views.price_benefits', name='price_benefits'),
+    url(r'^project/programs/costs/benefits.html$', 'costtool.views.benefits', name='benefits'),
+    url(r'^project/programs/costs/(?P<ben_id>\d+)/save_benefit.html$', 'costtool.views.save_benefit', name='save_benefit'),
+
+    url(r'^project/programs/costs/wage_converter.html$', 'costtool.views.wage_converter', name='wage_converter'),
+    url(r'^project/programs/costs/wage_defaults.html$', 'costtool.views.wage_defaults', name='wage_defaults'),
+    url(r'^project/programs/costs/summary.html$', 'costtool.views.price_summary', name='price_summary'),
+    url(r'^project/programs/costs/nonper_summary.html$', 'costtool.views.nonper_summary', name='nonper_summary'),
+    url(r'^project/programs/costs/finish.html$', 'costtool.views.finish', name='finish'),
 
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),

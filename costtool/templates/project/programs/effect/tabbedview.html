@@ -24,6 +24,7 @@
         <ul class="nav nav-tabs" id="myTab">
             <li class="active"><a href="#form1" id="Program" data-toggle="tab" data-value="#form1">Program Description</a></li>
             <li><a href="#form2" data-toggle="tab" id="Effect" data-value="#form2">Effectiveness Information</a></li>
+            <li><a href="#form3" data-toggle="tab" id="Cost" data-value="#form3">Cost Information</a></li>
         </ul>
     </div>
 
@@ -70,6 +71,48 @@
              </form>
         </div>
       
+       <div class="tab-pane" id="form3">
+            <form class="form-signin span8" id="form3" method="post" enctype="multipart/form-data">
+            <table>
+            <thead>
+            <tr>
+              <th>Ingredients</th>
+              <th>Quantity of Ingredient</th>
+              <th>Unit of measure</th>
+              <th>Variable, fixed or lumpy</th>
+              <th>Adj. price of Ingredient</th>
+              <th>Cost</th>
+              <th>% of Total Cost</th>
+              <th>Cost per participant</th>
+            </tr>
+            </thead>
+            <form method="post" id="frm3"  enctype="multipart/form-data">
+            <tbody class="product-instances">
+             {% csrf_token %}
+             {{ frm3.management_form }}
+             {% for form in frm3 %}
+             {{ form.id }}
+             <tr>
+                <td>{{ form.ingredient }}</td>
+                <td>{{ form.quantityUsed }}</td>
+                <td>{{ form.newMeasure }}</td>
+                <td>{{ form.variableFixed }}</td>
+                <td>{{ form.convertedPrice }}</td>
+                <td></td>
+                <td></td>
+                <td></td>
+             </tr>
+             {% endfor %}
+
+             </tbody>
+             </table>
+
+                <input class="btn btn-primary" type="button" name="cost" value="Add ingredient" onclick="search();"/>
+                <input class="btn btn-primary" type="button" name="cancel" value="Cancel" onclick="cancelout();"/>
+                <input type="hidden" id="activeTab" name="temp2" value="program" />
+                </form>
+        </div>
+
       <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script> 
       <script type="text/javascript">
            var proj = {{project.id}};
@@ -78,8 +121,30 @@
               document.location.href = "/project/programs/"  + proj + "/program_list.html";
            }
 
+           function search() {
+              document.location.href = "/project/programs/costs/search_costs.html";
+           }
+
+           function ShowQueryString(addr) {
+
+            activeform = addr.split("?")[1].split("=")[1];
+            document.getElementById("activeTab").value = activeform;
+           }
+
            $("form").ready(function() {
+              wref = window.location.href;
+              windex = wref.indexOf('costform');
+              if (windex != -1){
+                 ShowQueryString(wref);
+              }
               anal  = document.getElementById("myField").value;
+              activeform = document.getElementById("activeTab").value;
+              if (activeform == 'costform') {
+                 $('#myTab a[href="#form3"]').tab('show');
+              }
+              else {
+                 $('#myTab a[href="#form1"]').tab('show');
+              }
               if (anal != 'Cost-Effectiveness Analysis') {
                   $($('.nav-tabs').find("li")[1]).hide();
                   $($('.nav-tabs').find('#form2')).hide();

@@ -1,7 +1,7 @@
 from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import *
-from costtool.models import UserProfile, Projects, Programs, ProgramDesc, ParticipantsPerYear, Effectiveness, Prices, Settings,GeographicalIndices, GeographicalIndices_orig, InflationIndices, InflationIndices_orig
+from costtool.models import Benefits,UserProfile, Projects, Programs, ProgramDesc, ParticipantsPerYear, Effectiveness, Prices, Settings,GeographicalIndices, GeographicalIndices_orig, InflationIndices, InflationIndices_orig, Ingredients
 from crispy_forms.bootstrap import *
 from django.contrib.auth.models import User
 
@@ -210,6 +210,106 @@ class EffectForm(forms.ModelForm):
           )
         self.helper.form_tag = False
 
+ 
+class PricesSearchForm(forms.ModelForm):
+   catquery = Prices.objects.values_list('category', flat=True).distinct()
+   catquery_choices =  [(id, id) for id in catquery]
+   edquery = Prices.objects.values_list('edLevel', flat=True).distinct()
+   edquery_choices =  [(id, id) for id in edquery]
+   secquery = Prices.objects.values_list('sector', flat=True).distinct()
+   secquery_choices =  [(id, id) for id in secquery]
+   category = forms.ChoiceField(catquery_choices, required=False, widget=forms.Select(),label="Category:")
+   edLevel = forms.ChoiceField(edquery_choices, required=False, widget=forms.Select(), label="Education level to be served:")
+   sector = forms.ChoiceField(secquery_choices, required=False, widget=forms.Select(),label="Sector:")
+   ingredient  = forms.CharField(required=False,label="Ingredient:")
+
+   class Meta:
+       model = Prices
+       fields = ('category','edLevel','sector','ingredient')
+
+class PriceIndicesForm(forms.ModelForm):
+   unitMeasurePrice = forms.CharField(required=False, widget = forms.TextInput(attrs={'readonly':'readonly'}),label="Unit of Measure:")
+   price = forms.CharField(required=False, widget = forms.TextInput(attrs={'readonly':'readonly'}),label="Price per unit:")
+   yearPrice = forms.CharField(required=False, widget = forms.TextInput(attrs={'readonly':'readonly'}),label="Year of the listed price:")
+   statePrice  = forms.CharField(required=False, widget = forms.TextInput(attrs={'readonly':'readonly'}), label="To which geographical location does this price correspond to?")
+   areaPrice = forms.CharField(required=False, widget = forms.TextInput(attrs={'readonly':'readonly'}), label="")
+   sourcePriceData = forms.CharField(required=False,widget = forms.TextInput(attrs={'readonly':'readonly'}),label="Source:")
+
+   class Meta:
+       model = Prices
+       fields = ('unitMeasurePrice', 'price', 'yearPrice', 'statePrice', 'areaPrice', 'sourcePriceData')
+
+class NonPerIndicesForm(forms.ModelForm):
+   unitMeasurePrice = forms.CharField(required=False, widget = forms.TextInput(attrs={'readonly':'readonly'}),label="Unit of Measure:")
+   price = forms.CharField(required=False, widget = forms.TextInput(attrs={'readonly':'readonly'}),label="Price per unit:")
+   lifetimeAsset = forms.DecimalField(required=False,label="Lifetime of the asset:" )
+   interestRate = forms.DecimalField(required=False,label="Interest rate:")
+   yearPrice = forms.CharField(required=False, widget = forms.TextInput(attrs={'readonly':'readonly'}),label="Year of the listed price:")
+   statePrice  = forms.CharField(required=False, widget = forms.TextInput(attrs={'readonly':'readonly'}), label="To which geographical location does this price correspond to?")
+   areaPrice = forms.CharField(required=False, widget = forms.TextInput(attrs={'readonly':'readonly'}), label="")
+   sourcePriceData = forms.CharField(required=False,widget = forms.TextInput(attrs={'readonly':'readonly'}),label="Source:")
+
+   class Meta:
+       model = Prices
+       fields = ('unitMeasurePrice', 'price', 'yearPrice', 'statePrice', 'areaPrice', 'sourcePriceData')
+
+class WageDefaults(forms.ModelForm):
+    hrsCalendarYr = forms.IntegerField(required=False,label="Number of hours in the calendar year: The calendar year consists of 2,080 working hours (52 weeks, 5 days a week, 8 hrs a day) according to the U.S. Bureau of Labor Statistics. This is used as the default number for the wage converter. However, if this number does not fit your requirements, you can enter a different number of hours for the calendar year in the following cell:")
+    hrsAcademicYr = forms.IntegerField(required=False,initial=1440, label="Number of hours in the K-12 academic year: The academic year consists of 1,440 working hours (36 weeks, 5 days a week, 8 hrs a day) according to CBCSE. This is used as the default number for the wage converter. However, if this number does not fit your requirements, you can enter a different number of hours for the K-12 academic year in the following cell:")
+    hrsHigherEdn = forms.IntegerField(required=False,initial=1560,label="Number of hours in the higher education academic year: The academic year consists of 1,560 working hours (39 weeks, 5 days a week, 8 hrs a day) according to CBCSE. This is used as the default number for the wage converter. However, if this number does not fit your requirements, you can enter a different number of hours for the higher education academic year in the following cell:")
+   
+    class Meta:
+       model = Ingredients
+       fields = ('hrsCalendarYr', 'hrsAcademicYr', 'hrsHigherEdn')
+
+class PriceBenefits(forms.ModelForm):
+   choicesYN = (('Yes','Yes'),('No', 'No'))
+   benefitYN = forms.ChoiceField(choices=choicesYN,required=False,widget=forms.RadioSelect(),label="Do you need to adjust the wages to include fringe benefits?")
+   benefitRate = forms.DecimalField(required=False,label="Enter fringe benefit rate as a percentage of salary/wage:")
+
+   class Meta:
+       model = Ingredients
+       fields = ('benefitYN', 'benefitRate')
+
+class Benefits(forms.ModelForm):
+    SectorBenefit = forms.CharField(required=False,label="Sector")
+    EdLevelBenefit = forms.CharField(required=False,label="Ed Level")
+    PersonnelBenefit = forms.CharField(required=False,label="Personnel")
+    TypeRateBenefit = forms.CharField(required=False,label="Type Rate")
+    YearBenefit = forms.CharField(required=False,label="Year")
+    BenefitRate = forms.CharField(required=False,label="Benefit Rate")
+    SourceBenefitData = forms.CharField(required=False,label="Source")
+    URLBenefitData = forms.CharField(required=False,label="URL")
+
+    class Meta:
+       model = Benefits
+       fields = ('SectorBenefit', 'EdLevelBenefit', 'PersonnelBenefit', 'TypeRateBenefit', 'YearBenefit', 'BenefitRate', 'SourceBenefitData', 'URLBenefitData')
+
+class WageConverter(forms.ModelForm):
+   choicesPersonnel = (('Hour','Hour'),('Day','Day'),('Week','Week'),('K-12 Academic Year','K-12 Academic Year'), ('Higher Ed Academic Year', 'Higher Ed Academic Year'),('Calendar Year','Calendar Year'))
+   newMeasure = forms.ChoiceField(choicesPersonnel, required=False, widget=forms.Select(),label="Convert to")
+   convertedPrice = forms.DecimalField(required=False, label="Converted value:", widget = forms.TextInput(attrs={'readonly':'readonly'}))
+
+   class Meta:
+       model = Ingredients
+       fields = ('newMeasure',)
+
+class PriceSummary(forms.ModelForm):
+   quantityUsed  = forms.DecimalField(required=False,label="Quantity of ingredient needed:")
+   variableFixed = forms.ChoiceField(choices=(('Fixed','Yes. This is a Fixed quantity.'),('Variable','No. This is a Variable quantity.'),('Lumpy','No. This is a Lumpy quantity.')),required=False,widget=forms.RadioSelect(),label="Does this number stay fixed even if number of participants change?")
+
+   class Meta:
+       model = Ingredients
+       fields = ('quantityUsed', 'variableFixed')
+
+class MultipleSummary(forms.ModelForm):
+   yearQtyUsed = forms.IntegerField(required=False, label="Year:")
+   quantityUsed  = forms.DecimalField(required=False,label="Quantity of ingredient needed:")
+
+   class Meta:
+       model = Ingredients
+       fields = ('yearQtyUsed', 'quantityUsed')
+
 class PricesForm(forms.ModelForm):
     yrquery = InflationIndices.objects.values_list('yearCPI', flat=True).distinct()
     yrquery_choices =  [(id, id) for id in yrquery]
@@ -225,7 +325,6 @@ class PricesForm(forms.ModelForm):
     edquery_choices =  [(id, id) for id in edquery]
     secquery = Prices.objects.values_list('sector', flat=True).distinct()
     secquery_choices =  [(id, id) for id in secquery]
-
 
     category = forms.ChoiceField(catquery_choices, required=False, widget=forms.Select(),label="Select the category for this ingredient:")
     ingredient  = forms.CharField(required=False,label="Name of the ingredient:")

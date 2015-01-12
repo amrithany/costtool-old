@@ -1,0 +1,42 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block body_block %}
+
+<div class="hero-unit">
+    <div class="container">
+             <h2 class="form-signin-heading">Wage Converter</h2>
+             Convert wages to other units: hours, days, weeks, calendar year and academic year.
+             <form class="form-signin span8" id="form" method="post" enctype="multipart/form-data">
+                 {% csrf_token %}
+                 <br />
+                 Wage: {{price}} USD per {{measure}} <br /><br />
+                 Convert to  {{ form.newMeasure }}
+                 <a href="/project/programs/costs/wage_converter.html"><input type="submit" style="background-color:red" name="compute" value="Compute"/></a> <br />
+                 Converted value:
+                 {{ form.convertedPrice }}
+
+                 <br /> <br />
+                 Specification for calendar and academic year
+                 <br />
+                 Number of hours in the calendar year: {{hrsCalendarYr}}
+                 <br />
+                 Number of hours in the K-12 academic year: {{hrsAcademicYr}}
+                 <br />
+                 Number of hours in the higher ed. academic year: {{hrsHigherEdn}}
+                 <br />
+              <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+              <script type="text/javascript">
+              function cancelout() {
+                 document.location.href = "/project/programs/costs/"+'{{price_id}}'+"/price_indices.html";
+              }
+
+              </script>
+             <a href="/project/programs/costs/wage_defaults.html"><input type="button" style="background-color:green" name="goto" value="Change default number of hours per year" /></a><br /> <br />
+             <input class="btn btn-primary" type="submit" name="use" value="Use converted value"/>
+             <input class="btn btn-primary" type="button" name="cancel" value="Cancel" onclick="cancelout();"/>
+             </form>
+    </div>
+</div>
+{% endblock %}
+
+

@@ -1,0 +1,93 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block body_block %}
+
+<div class="hero-unit">
+    <h3 class="form-signin-heading">Add Ingredient</h3>
+    {% if pcount == 0 %}
+    The number of records returned after your search is 0. 
+    <br />
+    You searched for Category {{cat}}, Ed Level {{edLevel}}, Sector {{sector}} and Ingredient {{ingredient}}.
+    {% else %}
+    Select the price most appropriate for your requirements.
+    <br />
+    You will be able to change the unit of measure later on if needed.
+    <br />
+    {% endif %}
+    <div class="table-responsive">
+            <table class="table table-condensed">
+                <thead>
+                    <th></th>
+                    <th>Ingredient</th>
+                    <th>Ed. Level</th>
+                    <th>Price</th>
+                    <th>Unit of Measure</th>
+                    <th>Sector</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Year</th>
+                    <th>Source</th>
+                    <br />
+                    {% for prc in prices %}
+                        <tr onmouseover="javascript:style.background='#dcfac9'" onmouseout="javascript:style.background='#DCDCDC'" bgcolor="#DCDCDC">
+                            <td><input type="checkbox" id="{{prc.id}}" value="unchecked" onclick="setId(this);"  style="margin-left:auto; margin-right:auto;"></td>
+                            <td>{{prc.ingredient}}</td>
+                            <td>{{prc.edLevel}}</td>
+                            <td>{{prc.price}}</td>
+                            <td>{{prc.unitMeasurePrice}}</td>
+                            <td>{{prc.sector}}</td>
+                            <td>{{prc.category}}</td>
+                            <td>{{prc.descriptionPrice}}</td>
+                            <td>{{prc.yearPrice}}</td>
+                            <td>{{prc.sourcePriceData}}</td>
+                        </tr>
+                    {% endfor %}
+                   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+                   <script type="text/javascript">
+                       var passvar = 000;
+                       var cat = '{{cat}}';
+                       function setId(chkBox){
+
+                          var inputs = document.getElementsByTagName("input");
+                          for (i = 0; i<inputs.length; i++ ) {
+                             if (inputs[i].type == 'checkbox'){
+                                if (inputs[i].id != chkBox.id) {
+                                   inputs[i].checked = false;
+
+                               }
+                                else { inputs[i].checked = true;}
+                             }
+                          }
+                          passvar = chkBox.id;
+                          cat = chkBox.category;
+                       }
+
+
+                       function Pass() {
+                          if (passvar == 000){
+                             alert('Select a Price to work on');}
+                          else {
+                              cat = '{{cat}}';
+                              if (cat== 'Personnel'){
+                                document.location.href = "/project/programs/costs/"+passvar+"/price_indices.html";
+                             }
+                             else {
+                                document.location.href = "/project/programs/costs/"+passvar+"/nonper_indices.html";
+                             }
+                         }
+                       }
+
+                       function cancelout() {
+                          document.location.href = "/project/programs/effect/"+ {{project_id}} +"/"+ {{program_id}} +"/tabbedview.html?activeform=costform";
+                       }
+
+                   </script>
+               </thead>
+            </table>
+           <a href="/project/programs/costs/search_costs.html"> <input type="button" style="background-color:green" name="goto2" value="< Back" /></a>
+           <input type="button" style="background-color:green" name="goto" value="Next >>" onclick="Pass();" />
+           <input class="btn btn-primary" type="button" name="cancel" value="Cancel" onclick="cancelout();"/>
+    </div>
+</div>
+{% endblock %}
+

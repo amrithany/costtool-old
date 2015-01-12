@@ -1,0 +1,59 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block body_block %}
+
+<div class="hero-unit">
+    <div class="table-responsive">
+        <h2 class="form-signin-heading">Add Ingredient</h2>
+        <h3> Select benefit rate for the ingredient</h3>
+            <table class="table table-condensed">
+                <thead>
+                    <th></th>
+                    <th>Sector</th>
+                    <th>Personnel</th>
+                    <th>Benefit Rate</th>
+                    {% for ben in allbenefits %}
+                        <tr onmouseover="javascript:style.background='#dcfac9'" onmouseout="javascript:style.background='#DCDCDC'" bgcolor="#DCDCDC">
+                            <td><input type="checkbox" id="{{ben.id}}" value="unchecked" onclick="setId(this);"  style="margin-left:auto; margin-right:auto;"></td>
+                            <td>{{ben.SectorBenefit}}</td>
+                            <td>{{ben.PersonnelBenefit}}</td>
+                            <td>{{ben.BenefitRate}}</td>
+                        </tr>
+                    {% endfor %}
+                   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+                   <script type="text/javascript">
+                       var passvar = 000;
+                       function setId(chkBox){
+                          var inputs = document.getElementsByTagName("input");
+                          for (i = 0; i<inputs.length; i++ ) {
+                             if (inputs[i].type == 'checkbox'){
+                                if (inputs[i].id != chkBox.id) {
+                                   inputs[i].checked = false;
+                                }
+                                else { inputs[i].checked = true;}
+                             }
+                          }
+                          passvar = chkBox.id;
+                       }
+                       
+                       function selectrate () {
+                          if (passvar == 000){
+                             alert('Select a Benefit Rate');}
+                          else {
+                             ben_id = passvar; 
+                             document.location.href = "/project/programs/costs/"+ben_id+"/save_benefit.html";}
+                       }
+
+                       function goback() {
+                          document.location.href = "/project/programs/costs/"+{{price_id}}+"/price_benefits.html";
+                       }
+
+                   </script>
+               </thead>
+            </table>
+            <input type="button" style="background-color:green" name="goto2" value="< Back" onclick="goback();" />
+            <input class="btn btn-primary" type="submit"  name="save" value="Select rate" onclick="selectrate();" />
+    </div>
+</div>
+{% endblock %}
+

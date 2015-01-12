@@ -1,0 +1,32 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block body_block %}
+
+<div class="hero-unit">
+    <div class="container">
+             <form  id="form3" action="/project/programs/costs/price_search_results.html" method="get">
+             {% csrf_token %}
+             <h2 class="form-signin-heading">Add ingredient</h2>
+             Select parameters to search ingredient prices in database of prices.
+             <br />
+             The database of prices used for the search are those you selected in the "settings" tab.
+             <br />
+             <br />
+             {{ costform }} 
+             <br />
+             <br />
+             <input class="btn btn-primary" type="submit" name="search" value="Search"/>
+             <input class="btn btn-primary" type="button" name="cancel" value="Cancel" onclick="cancelout();"/>
+           </form>
+           <script type="text/javascript">
+
+              function cancelout() {
+                 document.location.href = "/project/programs/effect/"+ {{project_id}} +"/"+ {{program_id}} +"/tabbedview.html?activeform=costform";
+              }
+
+           </script>
+    </div>
+</div>
+{% endblock %}
+
+

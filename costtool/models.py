@@ -60,6 +60,19 @@ class InflationIndices_orig(m.Model):
     def __unicode__(self):
         return self.yearCPI
 
+class Benefits(m.Model):
+    SectorBenefit = m.CharField(max_length=100,null=True,blank=True)	
+    EdLevelBenefit = m.CharField(max_length=100,null=True,blank=True)
+    PersonnelBenefit = m.CharField(max_length=256,null=True,blank=True)	
+    TypeRateBenefit = m.CharField(max_length=256,null=True,blank=True)	
+    YearBenefit = m.CharField(max_length=100,null=True,blank=True)	
+    BenefitRate = m.CharField(max_length=100,null=True,blank=True)	
+    SourceBenefitData = m.CharField(max_length=100,null=True,blank=True)	
+    URLBenefitData = m.CharField(max_length=256,null=True,blank=True)
+
+    def __unicode__(self):
+        return self.SectorBenefit
+
 class Programs(m.Model):
     progname = m.CharField(max_length=256)
     progshortname = m.CharField(max_length=256)
@@ -129,4 +142,44 @@ class Prices(m.Model):
 
     def __unicode__(self):
         return unicode(self.priceProvider)
+
+class Ingredients(m.Model):
+    category = m.CharField(max_length=256,null=True, blank=True)
+    ingredient = m.CharField(max_length=2000,null=True, blank=True)
+    edLevel = m.CharField(max_length=256,null=True, blank=True)
+    sector = m.CharField(max_length=256,null=True, blank=True)
+    unitMeasurePrice = m.CharField(max_length=256,null=True, blank=True)
+    price = m.CharField(max_length=100,null=True, blank=True)
+    sourcePriceData = m.CharField(max_length=256,null=True, blank=True)
+    urlPrice = m.CharField(max_length=2000,null=True, blank=True)
+    hrsCalendarYr = m.IntegerField(null=True,blank=True)
+    hrsAcademicYr = m.IntegerField(null=True,blank=True)
+    hrsHigherEdn = m.IntegerField(null=True,blank=True)
+    newMeasure = m.CharField(max_length=256,null=True, blank=True)
+    convertedPrice = m.DecimalField(max_digits=12,decimal_places=2,null=True,blank=True)
+    lifetimeAsset = m.DecimalField(max_digits=12,decimal_places=2,null=True,blank=True)
+    interestRate = m.DecimalField(max_digits=12,decimal_places=2,null=True,blank=True)
+    priceAdjAmortization = m.DecimalField(max_digits=12,decimal_places=2,null=True,blank=True)
+    benefitYN = m.CharField(max_length=1,null=True,blank=True)
+    benefitRate = m.DecimalField(max_digits=12,decimal_places=2,null=True,blank=True)
+    SourceBenefitData = m.CharField(max_length=100,null=True,blank=True)
+    priceAdjBenefits = m.DecimalField(max_digits=12,decimal_places=2,null=True,blank=True)
+    percentageofUsage  = m.IntegerField(null=True,blank=True)
+    yearPrice = m.DecimalField(max_digits=12,decimal_places=2,null=True,blank=True)
+    statePrice = m.CharField(max_length=2000,null=True, blank=True)
+    areaPrice = m.CharField(max_length=2000,null=True, blank=True)
+    geoIndex = m.DecimalField(max_digits=12,decimal_places=2,null=True,blank=True)
+    indexCPI = m.DecimalField(max_digits=12,decimal_places=2,null=True,blank=True)
+    yearQtyUsed = m.IntegerField(null=True,blank=True)
+    quantityUsed = m.IntegerField(null=True,blank=True)
+    variableFixed = m.CharField(max_length=10,null=True,blank=True)
+    priceAdjInflation = m.DecimalField(max_digits=12,decimal_places=2,null=True,blank=True)
+    priceAdjGeographicalArea = m.DecimalField(max_digits=12,decimal_places=2,null=True,blank=True)
+    priceNetPresentValue = m.DecimalField(max_digits=12,decimal_places=2,null=True,blank=True)
+    adjPricePerIngredient = m.DecimalField(max_digits=12,decimal_places=2,null=True,blank=True)
+    costPerIngredient = m.DecimalField(max_digits=12,decimal_places=2,null=True,blank=True)
+    programId = m.IntegerField(null=True,blank=True)
+
+    def __unicode__(self):
+        return self.ingredient
 

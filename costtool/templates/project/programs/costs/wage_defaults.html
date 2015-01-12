@@ -1,0 +1,21 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block body_block %}
+
+<div class="hero-unit">
+    <div class="container">
+             <form class="form-signin span8" id="form" method="post"  enctype="multipart/form-data">
+             {% csrf_token %}
+             <h2 class="form-signin-heading">Wage Converter default value</h2>
+             Change default values for calendar and academic year
+             <br /><br />
+              {{ form }}
+             <br /><br />
+             <a href="/project/programs/costs/wage_converter.html"> <input type="button" style="background-color:green" name="goto2" value="< Back to wage converter" /></a>
+             <input class="btn btn-primary" type="submit"  name="save" value="Save changes"  />
+           </form>
+    </div>
+</div>
+{% endblock %}
+
+
