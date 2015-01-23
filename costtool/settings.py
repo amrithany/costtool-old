@@ -40,8 +40,10 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'crispy_forms',
-    'import_export',
+    'django_tables2',
     'costtool',
+    'djangojs',
+    'eztables',
 )
 
 MIDDLEWARE_CLASSES = (

@@ -51,8 +51,11 @@ urlpatterns = patterns('',
     url(r'^project/programs/costs/wage_converter.html$', 'costtool.views.wage_converter', name='wage_converter'),
     url(r'^project/programs/costs/wage_defaults.html$', 'costtool.views.wage_defaults', name='wage_defaults'),
     url(r'^project/programs/costs/summary.html$', 'costtool.views.price_summary', name='price_summary'),
+
     url(r'^project/programs/costs/nonper_summary.html$', 'costtool.views.nonper_summary', name='nonper_summary'),
     url(r'^project/programs/costs/finish.html$', 'costtool.views.finish', name='finish'),
+    url(r'^project/programs/costs/financial.html$', 'costtool.views.comp_table',  name='comp_table'),
+    url(r'^project/programs/costs/umconverter.html$', 'costtool.views.um_converter', name='um_converter'),
 
     url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
     url(r'^admin/', include(admin.site.urls)),

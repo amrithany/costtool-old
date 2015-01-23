@@ -11,7 +11,15 @@ from django.forms.formsets import formset_factory
 from django.forms.models import inlineformset_factory, modelformset_factory
 
 from costtool import models as m
-from costtool.forms import PricesForm, PricesSearchForm, PriceIndicesForm, WageDefaults, WageConverter, PriceBenefits, PriceSummary,MultipleSummary, UserForm, UserProfileForm, ProjectsForm, ProgramsForm, ProgramDescForm, ParticipantsForm, EffectForm,SettingsForm, GeographicalForm, GeographicalForm_orig, InflationForm, InflationForm_orig
+from costtool.forms import PricesForm, PricesSearchForm, PriceIndicesForm, NonPerIndicesForm, WageDefaults, WageConverter,UMConverter, PriceBenefits, PriceSummary,MultipleSummary, UserForm, UserProfileForm, ProjectsForm, ProgramsForm, ProgramDescForm, ParticipantsForm, EffectForm,SettingsForm, GeographicalForm, GeographicalForm_orig, InflationForm, InflationForm_orig
+
+from django_tables2   import RequestConfig
+from costtool.tables  import IngredientsTable
+from django.template import add_to_builtins
+
+add_to_builtins('eztables.templatetags.eztables')
+from eztables.views import DatatablesView
+
 import xlrd
 import MySQLdb
 
@@ -46,6 +54,22 @@ def prices(request):
 
 def imports(request):
     return render(request,'prices/imports.html')
+
+def comp_table(request):
+    return render(request, 'project/programs/costs/financial.html')
+
+class IngredientsDatatablesView(DatatablesView):
+    model = m.Ingredients
+    template = 'project/programs/costs/comp_table.html'
+    context_object_name = 'ingredients'
+
+    fields = (
+        'ingredient',
+        'quantityUsed',
+        'newMeasure',
+        'variableFixed',
+        'convertedPrice',
+    ) 
 
 def tabbedlayout(request,project_id,program_id):
     project = m.Projects.objects.get(pk=project_id)
@@ -140,7 +164,7 @@ def tabbedlayout(request,project_id,program_id):
        else:
           print ingform.errors
     else:
-        ingform = IngFormSet()
+        ingform = IngFormSet(queryset=m.Ingredients.objects.filter(programId=program_id))
 
 
     return render (request,'project/programs/effect/tabbedview.html',{'project':project,'program':program,'frm1':form1,'partform':partform, 'frm2':effectform, 'frm3':ingform})
@@ -271,6 +295,7 @@ def price_indices(request,price_id):
     return HttpResponse(template.render(context))
 
 def nonper_indices(request,price_id):
+    context = RequestContext(request)
     price = m.Prices.objects.get(pk=price_id)
     project_id = request.session['project_id']
     program_id = request.session['program_id']
@@ -281,7 +306,7 @@ def nonper_indices(request,price_id):
     ingredient = request.session['search_ingredient']
 
     if 'new_price' in request.session:
-       new_price = float(request.session['new_price'])
+       new_price = request.session['new_price']
     else:
        new_price = 0.0
        request.session['new_price'] = 0.0
@@ -289,21 +314,475 @@ def nonper_indices(request,price_id):
     if 'new_measure' in request.session:
        new_measure = request.session['new_measure']
     else:
-       new_measure = 'Hour'
-       request.session['new_measure'] = 'Hour'
+       new_measure = ''
+       request.session['new_measure'] = ''
 
     request.session['price_id'] = price_id
     request.session['price'] = price.price
     request.session['measure'] = price.unitMeasurePrice
-    template = loader.get_template('project/programs/costs/nonper_indices.html')
-    context = Context({
-        'price' : price,
-        'new_price' : new_price,
-        'new_measure' : new_measure,
-        'cat' : cat, 'edLevel':  edLevel, 'sector': sector,'ingredient' : ingredient,
-        'project_id':project_id, 'program_id':program_id
-    })
-    return HttpResponse(template.render(context))
+
+    if request.method == 'POST':
+        form = NonPerIndicesForm(request.POST)
+        if form.is_valid():
+            lifetimeAsset = form.save(commit=false)
+            request.session['lifetimeAsset'] = lifetimeAsset.lifetimeAsset
+            request.session['interestRate'] = lifetimeAsset.interestRate
+            return HttpResponseRedirect('project/programs/costs/nonper_summary.html')
+        else:
+            print form.errors
+
+    else:
+        form = NonPerIndicesForm()
+
+    return render_to_response('project/programs/costs/nonper_indices.html',{'form':form, 'price':price, 'new_price' : new_price, 'new_measure' : new_measure, 'cat' : cat, 'edLevel':  edLevel, 'sector': sector,'ingredient' : ingredient,'project_id':project_id, 'program_id':program_id},context)
+
+def um_converter(request):
+    context = RequestContext(request)
+    price_id = request.session['price_id']
+
+    if 'price' in request.session:
+       price = float(request.session['price'])
+    else:
+       price = 0.0
+       request.session['price'] = 0.0
+
+    if 'measure' in request.session:
+       measure = request.session['measure']
+    else:
+       measure = ''
+       request.session['measure'] = ''
+
+    if 'new_price' in request.session:
+        new_price = request.session['new_price']
+    else: 
+        new_price = 0.0
+        request.session['new_price'] = 0.0
+
+    if 'new_measure' in request.session:
+        new_measure = request.session['new_measure']
+    else: 
+        new_measure = ''
+        request.session['new_measure'] = ''
+
+    mylist = ['Sq. Inch', 'Sq. Foot','Sq. Yard','Acre','Sq. Mile','Sq. Meter','Sq. Kilometer','Hectare']
+    listVol=['Ounces','Cups','Pints','Quarts','Gallons','Liters']
+    listLen=['Inches','Feet','Yards','Miles','Millimeter','Centimeter','Kilometer']
+    listTime=['Minutes','Hours','Days','Weeks','Years']
+    measureType = 'mylist'
+
+    if measure in mylist:
+       measureType = 'mylist'
+    elif measure in listVol:
+       measureType = 'listVol'
+    elif measure in listLen:
+       measureType = 'listLen'
+    elif measure in listTime:
+       measureType = 'listTime'
+
+    if request.method == 'POST':
+        if 'compute' in request.POST:
+            form = UMConverter(data=request.POST)
+            if form.is_valid():
+                newMeasure = form.save(commit=False)
+                if measureType == 'mylist':
+                    if measure == 'Sq. Inch':
+                        newMeasure.convertedPrice = price
+                        if newMeasure.newMeasure == 'Sq. Foot':
+                            newMeasure.convertedPrice = price * 0.006
+                        if newMeasure.newMeasure == 'Sq. Yard':
+                            newMeasure.convertedPrice = price * 0.0007
+                        if newMeasure.newMeasure == 'Acre':
+                            newMeasure.convertedPrice = price * 0.000000159
+                        if newMeasure.newMeasure == 'Sq. Mile':
+                            newMeasure.convertedPrice = price * 0.000000000249
+                        if newMeasure.newMeasure == 'Sq. Meter':
+                            newMeasure.convertedPrice = price * 0.0006
+                        if newMeasure.newMeasure == 'Sq. Kilometer':
+                            newMeasure.convertedPrice = price * 0.000000000645
+                        if newMeasure.newMeasure == 'Hectare':
+                            newMeasure.convertedPrice = price * 0.0000000645
+
+                    if measure == 'Sq. Foot' or measure == 'Sq. Ft.':
+                        newMeasure.convertedPrice = price
+                        if newMeasure.newMeasure == 'Sq. Inch':
+                            newMeasure.convertedPrice = price * 144
+                        if newMeasure.newMeasure == 'Sq. Yard':
+                            newMeasure.convertedPrice = price * 0.111
+                        if newMeasure.newMeasure == 'Acre':
+                            newMeasure.convertedPrice = price * 0.0000229
+                        if newMeasure.newMeasure == 'Sq. Mile':
+                            newMeasure.convertedPrice = price * 0.00000003587
+                        if newMeasure.newMeasure == 'Sq. Meter':
+                            newMeasure.convertedPrice = price * 0.092
+                        if newMeasure.newMeasure == 'Sq. Kilometer':
+                            newMeasure.convertedPrice = price * 0.0000000929
+                        if newMeasure.newMeasure == 'Hectare':
+                            newMeasure.convertedPrice = price * 0.00000929
+
+                    if measure == 'Sq. Yard':
+                        newMeasure.convertedPrice = price
+                        if newMeasure.newMeasure == 'Sq. Inch':
+                            newMeasure.convertedPrice = price * 1296
+                        if newMeasure.newMeasure == 'Sq. Foot':
+                            newMeasure.convertedPrice = price * 9
+                        if newMeasure.newMeasure == 'Acre':
+                            newMeasure.convertedPrice = price * 0.0002
+                        if newMeasure.newMeasure == 'Sq. Mile':
+                            newMeasure.convertedPrice = price * 0.000000322
+                        if newMeasure.newMeasure == 'Sq. Meter':
+                            newMeasure.convertedPrice = price * 0.83
+                        if newMeasure.newMeasure == 'Sq. Kilometer':
+                            newMeasure.convertedPrice = price * 0.000000836
+                        if newMeasure.newMeasure == 'Hectare':
+                            newMeasure.convertedPrice = price * 0.0000836
+
+                    if measure == 'Acre':
+                        newMeasure.convertedPrice = price
+                        if newMeasure.newMeasure == 'Sq. Inch':
+                            newMeasure.convertedPrice = price * 0.00000627
+                        if newMeasure.newMeasure == 'Sq. Yard':
+                            newMeasure.convertedPrice = price * 4840
+                        if newMeasure.newMeasure == 'Sq. Foot':
+                            newMeasure.convertedPrice = price * 43560
+                        if newMeasure.newMeasure == 'Sq. Mile':
+                            newMeasure.convertedPrice = price * 0.0015
+                        if newMeasure.newMeasure == 'Sq. Meter':
+                            newMeasure.convertedPrice = price * 4046.86
+                        if newMeasure.newMeasure == 'Sq. Kilometer':
+                            newMeasure.convertedPrice = price * 0.00404
+                        if newMeasure.newMeasure == 'Hectare':
+                            newMeasure.convertedPrice = price * 0.404
+
+                    if measure == 'Sq. Mile':
+                        newMeasure.convertedPrice = price
+                        if newMeasure.newMeasure == 'Sq. Inch':
+                            newMeasure.convertedPrice = price * 0.000000004014
+                        if newMeasure.newMeasure == 'Sq. Yard':
+                            newMeasure.convertedPrice = price * 0.000003098
+                        if newMeasure.newMeasure == 'Sq. Foot':
+                            newMeasure.convertedPrice = price * 0.000000278
+                        if newMeasure.newMeasure == 'Acre':
+                            newMeasure.convertedPrice = price * 640
+                        if newMeasure.newMeasure == 'Sq. Meter':
+                            newMeasure.convertedPrice = price * 0.00000259
+                        if newMeasure.newMeasure == 'Sq. Kilometer':
+                            newMeasure.convertedPrice = price * 2.5899
+                        if newMeasure.newMeasure == 'Hectare':
+                            newMeasure.convertedPrice = price * 258.999
+
+                    if measure == 'Sq. Meter':
+                        newMeasure.convertedPrice = price
+                        if newMeasure.newMeasure == 'Sq. Inch':
+                            newMeasure.convertedPrice = price * 1550
+                        if newMeasure.newMeasure == 'Sq. Yard':
+                            newMeasure.convertedPrice = price * 1.19
+                        if newMeasure.newMeasure == 'Sq. Foot':
+                            newMeasure.convertedPrice = price * 10.76
+                        if newMeasure.newMeasure == 'Acre':
+                            newMeasure.convertedPrice = price * 0.00024
+                        if newMeasure.newMeasure == 'Sq. Mile':
+                            newMeasure.convertedPrice = price * 0.000000386
+                        if newMeasure.newMeasure == 'Sq. Kilometer':
+                            newMeasure.convertedPrice = price * 0.000001
+                        if newMeasure.newMeasure == 'Hectare':
+                            newMeasure.convertedPrice = price * 0.0001
+
+                    if measure == 'Sq. Kilometer':
+                        newMeasure.convertedPrice = price
+                        if newMeasure.newMeasure == 'Sq. Inch':
+                            newMeasure.convertedPrice = price * 0.000000001550
+                        if newMeasure.newMeasure == 'Sq. Yard':
+                            newMeasure.convertedPrice = price * 0.000001196
+                        if newMeasure.newMeasure == 'Sq. Foot':
+                            newMeasure.convertedPrice = price * 0.0000001076
+                        if newMeasure.newMeasure == 'Acre':
+                            newMeasure.convertedPrice = price * 247.105
+                        if newMeasure.newMeasure == 'Sq. Mile':
+                            newMeasure.convertedPrice = price * 0.386
+                        if newMeasure.newMeasure == 'Sq. Meter':
+                            newMeasure.convertedPrice = price * 0.000001
+                        if newMeasure.newMeasure == 'Hectare':
+                            newMeasure.convertedPrice = price * 100
+
+                    if measure == 'Hectare':
+                        newMeasure.convertedPrice = price
+                        if newMeasure.newMeasure == 'Sq. Inch':
+                            newMeasure.convertedPrice = price * 0.0000001550
+                        if newMeasure.newMeasure == 'Sq. Yard':
+                            newMeasure.convertedPrice = price * 11959.9
+                        if newMeasure.newMeasure == 'Sq. Foot':
+                            newMeasure.convertedPrice = price * 107639
+                        if newMeasure.newMeasure == 'Acre':
+                            newMeasure.convertedPrice = price * 2.471
+                        if newMeasure.newMeasure == 'Sq. Mile':
+                            newMeasure.convertedPrice = price * 0.00386
+                        if newMeasure.newMeasure == 'Sq. Meter':
+                            newMeasure.convertedPrice = price * 10000
+                        if newMeasure.newMeasure == 'Sq. Kilometer':
+                            newMeasure.convertedPrice = price * 0.01
+
+                    request.session['new_measure'] = newMeasure.newMeasure
+
+                if measureType == 'listVol':
+                    if measure == 'Ounces':
+                        newMeasure.convertedPrice = price
+                        if newMeasure.newMeasureVol == 'Cups':
+                            newMeasure.convertedPrice = price * 0.125
+                        if newMeasure.newMeasureVol == 'Pints':
+                            newMeasure.convertedPrice = price * 0.0625
+                        if newMeasure.newMeasureVol == 'Quarts':
+                            newMeasure.convertedPrice = price * 0.03125
+                        if newMeasure.newMeasureVol == 'Gallons':
+                            newMeasure.convertedPrice = price * 0.0078
+                        if newMeasure.newMeasureVol == 'Liters':
+                            newMeasure.convertedPrice = price * 0.029
+
+                    if measure == 'Cups':
+                        newMeasure.convertedPrice = price
+                        if newMeasure.newMeasureVol == 'Ounces':
+                            newMeasure.convertedPrice = price * 8
+                        if newMeasure.newMeasureVol == 'Pints':
+                            newMeasure.convertedPrice = price * 0.5
+                        if newMeasure.newMeasureVol == 'Quarts':
+                            newMeasure.convertedPrice = price * 0.25
+                        if newMeasure.newMeasureVol == 'Gallons':
+                            newMeasure.convertedPrice = price * 0.0625
+                        if newMeasure.newMeasureVol == 'Liters':
+                            newMeasure.convertedPrice = price * 0.236
+
+                    if measure == 'Pints':
+                        newMeasure.convertedPrice = price
+                        if newMeasure.newMeasureVol == 'Cups':
+                            newMeasure.convertedPrice = price * 2
+                        if newMeasure.newMeasureVol == 'Ounces':
+                            newMeasure.convertedPrice = price * 16
+                        if newMeasure.newMeasureVol == 'Quarts':
+                            newMeasure.convertedPrice = price * 0.5
+                        if newMeasure.newMeasureVol == 'Gallons':
+                            newMeasure.convertedPrice = price * 0.125
+                        if newMeasure.newMeasureVol == 'Liters':
+                            newMeasure.convertedPrice = price * 0.473
+
+                    if measure == 'Quarts':
+                        newMeasure.convertedPrice = price
+                        if newMeasure.newMeasureVol == 'Cups':
+                            newMeasure.convertedPrice = price * 4
+                        if newMeasure.newMeasureVol == 'Pints':
+                            newMeasure.convertedPrice = price * 2
+                        if newMeasure.newMeasureVol == 'Ounces':
+                            newMeasure.convertedPrice = price * 32
+                        if newMeasure.newMeasureVol == 'Gallons':
+                            newMeasure.convertedPrice = price * 0.25
+                        if newMeasure.newMeasureVol == 'Liters':
+                            newMeasure.convertedPrice = price * 0.946
+
+                    if measure == 'Gallons':
+                        newMeasure.convertedPrice = price
+                        if newMeasure.newMeasureVol == 'Cups':
+                            newMeasure.convertedPrice = price * 16
+                        if newMeasure.newMeasureVol == 'Pints':
+                            newMeasure.convertedPrice = price * 8
+                        if newMeasure.newMeasureVol == 'Quarts':
+                            newMeasure.convertedPrice = price * 4
+                        if newMeasure.newMeasureVol == 'Ounces':
+                            newMeasure.convertedPrice = price * 128
+                        if newMeasure.newMeasureVol == 'Liters':
+                            newMeasure.convertedPrice = price * 3.785
+
+                    if measure == 'Liters':
+                        newMeasure.convertedPrice = price
+                        if newMeasure.newMeasureVol == 'Cups':
+                            newMeasure.convertedPrice = price * 4.22
+                        if newMeasure.newMeasureVol == 'Pints':
+                            newMeasure.convertedPrice = price * 2.11
+                        if newMeasure.newMeasureVol == 'Quarts':
+                            newMeasure.convertedPrice = price * 1.05
+                        if newMeasure.newMeasureVol == 'Gallons':
+                            newMeasure.convertedPrice = price * 0.264
+                        if newMeasure.newMeasureVol == 'Ounces':
+                            newMeasure.convertedPrice = price * 33.81
+
+                    request.session['new_measure'] = newMeasure.newMeasureVol
+
+                if measureType == 'listLen':
+                    if measure == 'Inches':
+                        newMeasure.convertedPrice = price
+                        if newMeasure.newMeasureLen == 'Feet':
+                            newMeasure.convertedPrice = price * 0.083
+                        if newMeasure.newMeasureLen == 'Yards':
+                            newMeasure.convertedPrice = price * 0.027
+                        if newMeasure.newMeasureLen == 'Miles':
+                            newMeasure.convertedPrice = price * 1.578
+                        if newMeasure.newMeasureLen == 'Millimeter':
+                            newMeasure.convertedPrice = price * 25.4
+                        if newMeasure.newMeasureLen == 'Centimeter':
+                            newMeasure.convertedPrice = price * 2.54
+                        if newMeasure.newMeasureLen == 'Kilometer':
+                            newMeasure.convertedPrice = price * 0.0000254
+
+                    if measure == 'Feet':
+                        newMeasure.convertedPrice = price
+                        if newMeasure.newMeasureLen == 'Inches':
+                            newMeasure.convertedPrice = price * 12
+                        if newMeasure.newMeasureLen == 'Yards':
+                            newMeasure.convertedPrice = price * 0.3333
+                        if newMeasure.newMeasureLen == 'Miles':
+                            newMeasure.convertedPrice = price * 0.00018
+                        if newMeasure.newMeasureLen == 'Millimeter':
+                            newMeasure.convertedPrice = price * 304.8
+                        if newMeasure.newMeasureLen == 'Centimeter':
+                            newMeasure.convertedPrice = price * 30.48
+                        if newMeasure.newMeasureLen == 'Kilometer':
+                            newMeasure.convertedPrice = price * 0.000304
+
+                    if measure == 'Yards':
+                        newMeasure.convertedPrice = price
+                        if newMeasure.newMeasureLen == 'Inches':
+                            newMeasure.convertedPrice = price * 36
+                        if newMeasure.newMeasureLen == 'Feet':
+                            newMeasure.convertedPrice = price * 3
+                        if newMeasure.newMeasureLen == 'Miles':
+                            newMeasure.convertedPrice = price * 0.00056
+                        if newMeasure.newMeasureLen == 'Millimeter':
+                            newMeasure.convertedPrice = price * 914.4
+                        if newMeasure.newMeasureLen == 'Centimeter':
+                            newMeasure.convertedPrice = price * 91.44
+                        if newMeasure.newMeasureLen == 'Kilometer':
+                            newMeasure.convertedPrice = price * 0.0009144
+
+                    if measure == 'Miles':
+                        newMeasure.convertedPrice = price
+                        if newMeasure.newMeasureLen == 'Inches':
+                            newMeasure.convertedPrice = price * 63360
+                        if newMeasure.newMeasureLen == 'Feet':
+                            newMeasure.convertedPrice = price * 5280
+                        if newMeasure.newMeasureLen == 'Yards':
+                            newMeasure.convertedPrice = price * 1760
+                        if newMeasure.newMeasureLen == 'Millimeter':
+                            newMeasure.convertedPrice = price * 0.00000160934
+                        if newMeasure.newMeasureLen == 'Centimeter':
+                            newMeasure.convertedPrice = price * 160934
+                        if newMeasure.newMeasureLen == 'Kilometer':
+                            newMeasure.convertedPrice = price * 1.609
+
+                    if measure == 'Millimeter':
+                        newMeasure.convertedPrice = price
+                        if newMeasure.newMeasureLen == 'Inches':
+                            newMeasure.convertedPrice = price * 0.039
+                        if newMeasure.newMeasureLen == 'Feet':
+                            newMeasure.convertedPrice = price * 0.00328
+                        if newMeasure.newMeasureLen == 'Yards':
+                            newMeasure.convertedPrice = price * 0.00109
+                        if newMeasure.newMeasureLen == 'Miles':
+                            newMeasure.convertedPrice = price * 0.000000621
+                        if newMeasure.newMeasureLen == 'Centimeter':
+                            newMeasure.convertedPrice = price * 0.1
+                        if newMeasure.newMeasureLen == 'Kilometer':
+                            newMeasure.convertedPrice = price * 0.000001
+
+                    if measure == 'Centimeter':
+                        newMeasure.convertedPrice = price
+                        if newMeasure.newMeasureLen == 'Inches':
+                            newMeasure.convertedPrice = price * 0.393
+                        if newMeasure.newMeasureLen == 'Feet':
+                            newMeasure.convertedPrice = price * 0.0328
+                        if newMeasure.newMeasureLen == 'Yards':
+                            newMeasure.convertedPrice = price * 0.0109
+                        if newMeasure.newMeasureLen == 'Miles':
+                            newMeasure.convertedPrice = price * 0.00000621
+                        if newMeasure.newMeasureLen == 'Millimeter':
+                            newMeasure.convertedPrice = price * 10
+                        if newMeasure.newMeasureLen == 'Kilometer':
+                            newMeasure.convertedPrice = price * 0.00001
+
+                    if measure == 'Kilometer':
+                        newMeasure.convertedPrice = price
+                        if newMeasure.newMeasureLen == 'Inches':
+                            newMeasure.convertedPrice = price * 39370.1
+                        if newMeasure.newMeasureLen == 'Feet':
+                            newMeasure.convertedPrice = price * 3280.84
+                        if newMeasure.newMeasureLen == 'Yards':
+                            newMeasure.convertedPrice = price * 1093.61
+                        if newMeasure.newMeasureLen == 'Miles':
+                            newMeasure.convertedPrice = price * 0.621
+                        if newMeasure.newMeasureLen == 'Centimeter':
+                            newMeasure.convertedPrice = price * 100000
+                        if newMeasure.newMeasureLen == 'Millimeter':
+                            newMeasure.convertedPrice = price * 0.000001
+
+                    request.session['new_measure'] = newMeasure.newMeasureLen
+
+                if measureType == 'listTime':
+                    if measure == 'Minutes':
+                        newMeasure.convertedPrice = price
+                        if newMeasure.newMeasureTime == 'Hours':
+                            newMeasure.convertedPrice = price * 0.016
+                        if newMeasure.newMeasureTime == 'Days':
+                            newMeasure.convertedPrice = price * 0.00069
+                        if newMeasure.newMeasureTime == 'Weeks':
+                            newMeasure.convertedPrice = price * 0.0000992
+                        if newMeasure.newMeasureTime == 'Years':
+                            newMeasure.convertedPrice = price * 0.0000019
+
+                    if measure == 'Hours':
+                        newMeasure.convertedPrice = price
+                        if newMeasure.newMeasureTime == 'Minutes':
+                            newMeasure.convertedPrice = price * 60
+                        if newMeasure.newMeasureTime == 'Days':
+                            newMeasure.convertedPrice = price * 0.041
+                        if newMeasure.newMeasureTime == 'Weeks':
+                            newMeasure.convertedPrice = price * 0.0059
+                        if newMeasure.newMeasureTime == 'Years':
+                            newMeasure.convertedPrice = price * 0.00011
+
+                    if measure == 'Days':
+                        newMeasure.convertedPrice = price
+                        if newMeasure.newMeasureTime == 'Minutes':
+                            newMeasure.convertedPrice = price * 1440
+                        if newMeasure.newMeasureTime == 'Hours':
+                            newMeasure.convertedPrice = price * 24
+                        if newMeasure.newMeasureTime == 'Weeks':
+                            newMeasure.convertedPrice = price * 0.14
+                        if newMeasure.newMeasureTime == 'Years':
+                            newMeasure.convertedPrice = price * 0.0027
+
+                    if measure == 'Weeks':
+                        newMeasure.convertedPrice = price
+                        if newMeasure.newMeasureTime == 'Minutes':
+                            newMeasure.convertedPrice = price * 10080
+                        if newMeasure.newMeasureTime == 'Hours':
+                            newMeasure.convertedPrice = price * 168
+                        if newMeasure.newMeasureTime == 'Days':
+                            newMeasure.convertedPrice = price * 7
+                        if newMeasure.newMeasureTime == 'Years':
+                            newMeasure.convertedPrice = price * 0.019
+
+                    if measure == 'Years':
+                        newMeasure.convertedPrice = price
+                        if newMeasure.newMeasureTime == 'Minutes':
+                            newMeasure.convertedPrice = price * 525949
+                        if newMeasure.newMeasureTime == 'Hours':
+                            newMeasure.convertedPrice = price * 8765.81
+                        if newMeasure.newMeasureTime == 'Days':
+                            newMeasure.convertedPrice = price * 365.242
+                        if newMeasure.newMeasureTime == 'Weeks':
+                            newMeasure.convertedPrice = price * 52.1775
+
+                    request.session['new_measure'] = newMeasure.newMeasureTime
+
+                request.session['new_price'] = newMeasure.convertedPrice
+                return HttpResponseRedirect('/project/programs/costs/umconverter.html')
+            else:
+                print form.errors
+
+        if 'use' in request.POST:
+            price_id = request.session['price_id']
+            return HttpResponseRedirect('/project/programs/costs/'+ price_id + '/nonper_indices.html')
+
+    else:
+        form = UMConverter(initial={'convertedPrice':new_price,'newMeasure':new_measure})
+
+    return render_to_response('project/programs/costs/umconverter.html',{'form':form, 'price':price,'measure':measure,'measureType':measureType, 'new_price' : new_price, 'new_measure' : new_measure, 'price_id':price_id},context)
 
 def wage_converter(request):
     context = RequestContext(request)

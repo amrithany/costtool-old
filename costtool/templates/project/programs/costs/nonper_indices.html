@@ -15,7 +15,9 @@
                 <tr> Unit of Measure: <input type="text" id="measure" readonly></tr><br />
                 <tr> Price per unit: <input type="text" id="price" readonly> </tr><br /><br />
                  If you want to convert your price per unit to a different unit:
-                <br /> <input type="button" style="background-color:green" name="goto3" value="Unit Measure Converter" onclick="unitmeasure();"/> <br />
+                <br /> <input type="button" style="background-color:green" name="goto3" value="Unit Measure Converter" onclick="unitmeasure();"/> <br /><br />
+                <tr> Lifetime of the asset:  {{form.lifetimeAsset}} </tr><br />
+                <tr> Interest rate: {{form.interestRate}} </tr><br />
                 <br /> Is the price a national average or a local price? <br />
                 <tr>  {{price.statePrice}}  {{price.areaPrice}} </tr><br />
                 <tr> Year of listed price: {{price.yearPrice}} </tr><br />
@@ -48,8 +50,7 @@
              }   
 
              function unitmeasure(){
-                 alert('to be coded');
-                 //document.location.href ="/project/programs/costs/wage_converter.html";
+                 document.location.href ="/project/programs/costs/umconverter.html";
              }
            </script>
     </div>

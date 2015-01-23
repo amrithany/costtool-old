@@ -177,7 +177,18 @@ class ProgramDescForm(forms.ModelForm):
         )
 
         self.helper.form_tag = False
-       
+
+        instance = getattr(self, 'instance', None)
+        if instance and instance.pk:
+            self.fields['lengthofprogram'].widget.attrs['disabled'] = True       
+
+    def clean_lengthofprogram(self):
+        instance = getattr(self, 'instance', None)
+        if instance and instance.pk:
+            return instance.lengthofprogram
+        else: 
+            return self.cleaned_data['lengthofprogram']
+
 class ParticipantsForm(forms.ModelForm):
     yearnumber = forms.IntegerField(required=False, label="Year:")
     noofparticipants = forms.DecimalField(required=False, max_digits=6,decimal_places=2,min_value=0.01,label="Number of participants per year:")
@@ -186,6 +197,19 @@ class ParticipantsForm(forms.ModelForm):
         model = ParticipantsPerYear
         exclude = ['programId']
         fields = ('yearnumber', 'noofparticipants')
+
+    def __init__(self, *args, **kwargs):
+        super(ParticipantsForm, self).__init__(*args, **kwargs)
+        instance = getattr(self, 'instance', None)
+        if instance and instance.pk:
+            self.fields['yearnumber'].widget.attrs['readonly'] = True
+
+    def clean_yearnumber(self):
+        instance = getattr(self, 'instance', None)
+        if instance and instance.pk:
+            return instance.yearnumber
+        else:
+            return self.cleaned_data['yearnumber']
 
 class EffectForm(forms.ModelForm):
     sourceeffectdata = forms.CharField(required=False, widget=forms.Textarea(), label = "Source of effectiveness data:")
@@ -250,8 +274,8 @@ class NonPerIndicesForm(forms.ModelForm):
    sourcePriceData = forms.CharField(required=False,widget = forms.TextInput(attrs={'readonly':'readonly'}),label="Source:")
 
    class Meta:
-       model = Prices
-       fields = ('unitMeasurePrice', 'price', 'yearPrice', 'statePrice', 'areaPrice', 'sourcePriceData')
+       model = Ingredients
+       fields = ('unitMeasurePrice', 'price', 'lifetimeAsset', 'interestRate', 'yearPrice', 'statePrice', 'areaPrice', 'sourcePriceData')
 
 class WageDefaults(forms.ModelForm):
     hrsCalendarYr = forms.IntegerField(required=False,label="Number of hours in the calendar year: The calendar year consists of 2,080 working hours (52 weeks, 5 days a week, 8 hrs a day) according to the U.S. Bureau of Labor Statistics. This is used as the default number for the wage converter. However, if this number does not fit your requirements, you can enter a different number of hours for the calendar year in the following cell:")
@@ -293,6 +317,21 @@ class WageConverter(forms.ModelForm):
    class Meta:
        model = Ingredients
        fields = ('newMeasure',)
+
+class UMConverter(forms.ModelForm):
+   choicesPersonnel = (('Sq. Inch', 'Sq. Inch'),('Sq. Foot','Sq. Foot'),('Sq. Yard','Sq. Yard'),('Acre','Acre'), ('Sq. Mile', 'Sq. Mile'),('Sq. Meter','Sq. Meter'),('Sq. Kilometer','Sq. Kilometer'), ('Hectare','Hectare'))
+   choicesVolume = (('Ounces', 'Ounces'), ('Cups', 'Cups'), ('Pints','Pints'), ('Quarts','Quarts'), ('Gallons','Gallons'),('Liters','Liters'))     
+   choicesLength = (('Inches', 'Inches'), ('Feet','Feet'),('Yards','Yards'),('Miles','Miles'),('Millimeter','Millimeter'),('Centimeter','Centimeter'),('Kilometer','Kilometer'))
+   choicesTime = (('Minutes', 'Minutes'),('Hours','Hours'),('Days','Days'),('Weeks','Weeks'),('Years','Years'))
+   newMeasure = forms.ChoiceField(choicesPersonnel, required=False, widget=forms.Select(),label="Convert to")
+   newMeasureVol = forms.ChoiceField(choicesVolume, required=False, widget=forms.Select(),label="Convert to")
+   newMeasureLen = forms.ChoiceField(choicesLength, required=False, widget=forms.Select(),label="Convert to")
+   newMeasureTime = forms.ChoiceField(choicesTime, required=False, widget=forms.Select(),label="Convert to")
+   convertedPrice = forms.DecimalField(required=False, label="Converted value:", widget = forms.TextInput(attrs={'readonly':'readonly'}))
+
+   class Meta:
+       model = Ingredients
+       fields = ('newMeasure','newMeasureVol','newMeasureLen', 'newMeasureTime',)
 
 class PriceSummary(forms.ModelForm):
    quantityUsed  = forms.DecimalField(required=False,label="Quantity of ingredient needed:")

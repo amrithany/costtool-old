@@ -1,0 +1,53 @@
+<p hidden>
+mylist = ['Sq. Inch', 'Sq. Foot','Sq. Yard','Acre','Sq. Mile','Sq. Meter','Sq.Kilometer','Hectare']
+listVol=['Ounces','Cups','Pints','Quarts','Gallons','Kiloliter']
+listLen=['Inches','Feet','Yards','Miles','Millimeter','Centimeter','Kilometer']
+listTime=['Minutes','Hours','Days','Weeks','Years']
+</p>
+{% extends 'index.html' %}
+{% load static %}
+{% block body_block %}
+<div class="hero-unit">
+    <div class="container">
+             <h2 class="form-signin-heading">Unit Measure Converter</h2>
+             {% if measureType == 'mylist' %}
+             Convert Area to other units: Sq. Inch, Sq. Foot, Sq. Yard, Acre, Sq. Mile, Sq. Meter, Sq. Kilometer and Hectare.
+             {% elif measureType == 'listVol' %}
+             Convert Volume to other units: Ounces, Cups, Pints, Quarts, Gallons and  Liters.
+             {% elif measureType == 'listLen' %}
+             Convert Length to other units: Inches, Feet, Yards, Miles, Millimeter, Centimeter, Kilometer
+             {% elif measureType == 'listTime' %}
+             Convert Time to other units: Minutes, Hours, Days, Weeks, Years
+             {% endif %}
+             <form class="form-signin span8" id="form" method="post" enctype="multipart/form-data">
+                 {% csrf_token %}
+                 <br />
+                 Price: {{price}} USD per {{measure}} <br /><br />
+                 {% if measureType == 'mylist' %}
+                 Convert to  {{ form.newMeasure }}
+                 {% elif measureType == 'listVol' %}
+                 Convert to  {{ form.newMeasureVol }}
+                 {% elif measureType == 'listLen' %}
+                 Convert to  {{ form.newMeasureLen }}
+                 {% elif measureType == 'listTime' %}
+                 Convert to  {{ form.newMeasureTime }}
+                 {% endif %} 
+                 <a href="/project/programs/costs/umconverter.html"><input type="submit" style="background-color:red" name="compute" value="Compute"/></a> <br />
+                 Converted value:
+                 {{ new_price }}
+                 <br /> <br />
+              <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+              <script type="text/javascript">
+              function cancelout() {
+                 document.location.href = "/project/programs/costs/"+'{{price_id}}'+"/nonper_indices.html";
+              }
+
+              </script>
+             <input class="btn btn-primary" type="submit" name="use" value="Use converted value"/>
+             <input class="btn btn-primary" type="button" name="cancel" value="Cancel" onclick="cancelout();"/>
+             </form>
+    </div>
+</div>
+{% endblock %}
+
+
