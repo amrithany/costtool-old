@@ -12,13 +12,53 @@
              The database of prices used for the search are those you selected in the "settings" tab.
              <br />
              <br />
-             {{ costform }} 
+             Category:<br />
+             {{ costform.category }} 
              <br />
+             Ed Level to be served:<br />
+             <select name="edLevel" id="edLevel"> 
+             </select>
+             <br />
+             Sector:<br />
+             <select name="sector" id="sector">
+             </select>
+             <br />
+             Ingredient:<br /> 
+             {{ costform.ingredient }}
              <br />
              <input class="btn btn-primary" type="submit" name="search" value="Search"/>
              <input class="btn btn-primary" type="button" name="cancel" value="Cancel" onclick="cancelout();"/>
            </form>
            <script type="text/javascript">
+              var x = '{{choicesEdn}}';
+              var edLevel = document.getElementById('edLevel');
+              var y = '{{choicesSec}}';
+              var sector = document.getElementById('sector');
+              populateWithChildren(edLevel, 'option', x);
+              populateWithChildren(sector, 'option', y);
+
+              function populateWithChildren(parent, childTag, values) {
+              if (!parent || !values) {
+              // no parent element, or no values, nothing can be done so quit here
+              return false;
+              } else {
+              // this ensures that 'values' is an array:
+              // if values is a string, it splits that string (assuming a comma delimiter),
+              // and split() returns an array, otherwise:
+              // we assume it's already an array and use that.
+              values = typeof values === "string" ? values.split(',') : values;
+              // iterates through all the values in the 'values' array,
+              for (var i = 0, len = values.length; i < len; i++) {
+              // creates a new element (as passed in the 'childTag' variable)
+              var newElem = document.createElement(childTag),
+              text = document.createTextNode(values[i]);
+              // appends the textNode to the created element
+              newElem.appendChild(text);
+              // appends the created-element to the 'parent' node passed to the function
+              parent.appendChild(newElem);
+              }
+              }
+              }
 
               function cancelout() {
                  document.location.href = "/project/programs/effect/"+ {{project_id}} +"/"+ {{program_id}} +"/tabbedview.html?activeform=costform";

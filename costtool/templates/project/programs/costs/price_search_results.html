@@ -67,13 +67,7 @@
                           if (passvar == 000){
                              alert('Select a Price to work on');}
                           else {
-                              cat = '{{cat}}';
-                              if (cat== 'Personnel'){
-                                document.location.href = "/project/programs/costs/"+passvar+"/price_indices.html";
-                             }
-                             else {
-                                document.location.href = "/project/programs/costs/"+passvar+"/nonper_indices.html";
-                             }
+                             document.location.href = "/project/programs/costs/"+passvar+"/decideCat.html";
                          }
                        }
 
@@ -87,6 +81,8 @@
            <a href="/project/programs/costs/search_costs.html"> <input type="button" style="background-color:green" name="goto2" value="< Back" /></a>
            <input type="button" style="background-color:green" name="goto" value="Next >>" onclick="Pass();" />
            <input class="btn btn-primary" type="button" name="cancel" value="Cancel" onclick="cancelout();"/>
+
+            <a href="/project/programs/costs/price_search_results.html?category=" + '{{cat}}' + "&edLevel=" + 'Grades K-12' + "&sector=" + '{{sector}}' + "&ingredient=" + '{{ingredient}}' + "&search=Search></a>
     </div>
 </div>
 {% endblock %}

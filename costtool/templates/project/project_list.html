@@ -57,7 +57,7 @@
 
                        function PasstoSett () {
                           if (passvar == 000){
-                             alert('Select or Add a Project to add settings');}
+                             alert('Select a Project to edit settings');}
                           else {
                              document.location.href = "/project/" + passvar +"/add_settings.html";}
                        }
@@ -70,7 +70,7 @@
             <input class="btn btn-primary" type="button" name="button" value="Export as Excel" />
             <input class="btn btn-primary" type="button" name="button" value="Delete Project" onclick="PasstoDel();" />
             <input class="btn btn-primary" type="button" name="addset" id="addset" value="Settings" onclick="PasstoSett();"/>
-            <br><a href="/login/login.html"> <input type="button" style="background-color:green" name="goto2" value="Go Back" /></a>
+            <br><a href="/login/login.html"> <input type="button" style="background-color:green" name="goto2" value="Back" /></a>
 
     </div>
 </div>

@@ -19,7 +19,9 @@
              {% csrf_token %}
              {{ infform.management_form }}
              {% for form in infform %}
-             {{ form.id }}
+              {{ form.non_field_errors }}
+              {{ form.errors }}
+              {{ form.id }}
              <tr>
                 <td>{{ form.yearCPI }}</td>
                 <td>{{ form.indexCPI }}</td>

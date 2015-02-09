@@ -4,10 +4,12 @@
 
 <div class="hero-unit">
     <div class="container">
-             {% csrf_token %}
              <h2 class="form-signin-heading">Add ingredient</h2>
               Select benefit rate for {{price.category}} ingredient: {{price.ingredient}}
-              <form  id="form">
+             <form method="post" id="form"  enctype="multipart/form-data">
+             {% csrf_token %}
+             {{ form.non_field_errors }}
+              {{ form.errors }}
              <br />
              <br />
              <style type="text/css"> ul {list-style:none} </style>
@@ -18,17 +20,17 @@
              If you need to include fringe benefits 
              <br />
              Enter fringe benefit rate as a percentage of salary/wage:
-             {{form.benefitRate}}
+             <input type="text" name="benefitRate" id="benefitRate" value="{{benefitRate}}">
              <br /><br />
              If you do not know the fringe benefit rate you can search in CBCSE DB <br />
              <input type="button" style="background-color:green" name="goto3" value="Choose benefit rate from CBCSE DB" onclick="chooseRate();"/>
               <br />
               <br />
              <input type="button" style="background-color:green" name="goto2" value="< Back" onclick="goback();"/>
-             <input type="button" style="background-color:green" name="goto" value="Next >>" onclick="Pass();" />
+             <input type="submit" style="background-color:green" name="goto" value="Next >>" onclick="Pass();" />
              <input class="btn btn-primary" type="button" name="cancel" value="Cancel" onclick="cancelout();"/>
-           </form>
            <script type="text/javascript">
+             benefitRate = {{benefitRate}};
 
              function cancelout() {
                 document.location.href = "/project/programs/effect/"+ {{project_id}} +"/"+ {{program_id}} +"/tabbedview.html?activeform=costform";
@@ -47,6 +49,8 @@
               }
 
            </script>
+           </form>
+
     </div>
 </div>
 {% endblock %}

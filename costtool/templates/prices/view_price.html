@@ -7,7 +7,6 @@
              {% csrf_token %}
              <h3 class="form-signin-heading">Price Details</h2>
              <table class="table table-condensed">
-                <tr> Price Provider: {{ price.priceProvider }}</tr><br />
                 <tr> Category: {{ price.category }} </tr><br />
                 <tr> Ingredient: {{ price.ingredient}} </tr><br />
                 <tr> Education Level: {{ price.edLevel }} </tr><br />
@@ -20,12 +19,10 @@
                 <tr> Area Price: {{price.areaPrice}} </tr><br />
                 <tr> Source Price Data: {{price.sourcePriceData}} </tr><br />
                 <tr> URL Price: {{price.urlPrice}} </tr><br />
-                <tr> Last Checked: {{price.lastChecked}} </tr><br />
-                <tr> Next Check Date: {{price.nextCheckDate}} </tr><br />
              </table>
              <br />
 
-             <input class="btn btn-primary" type="button" name="cancel" value="Cancel" onclick="goBack()"/>
+             <input type="button" style="background-color:green" name="goto2" value="Back" onclick="goBack()"/>
              <input type="hidden" id="myField" name="temp" value="{{ price.priceProvider }}" />
 
              <script language="Javascript">

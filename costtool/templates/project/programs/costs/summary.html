@@ -29,7 +29,11 @@
                  <tbody class="product-instances">
                      {% csrf_token %}
                      {{ form.management_form }}
+
                      {% for form in form %}
+                        {{ form.non_field_errors }}
+                        {{ form.errors }}
+
                          {{ form.id }}
                      <tr>
                          <td>{{ form.yearQtyUsed}}</td>
@@ -44,15 +48,28 @@
                  <input type="radio" name="variableFixed" value="Variable" checked>No. This is a Variable quantity. <br>
                  <input type="radio" name="variableFixed" value="Lumpy">No. This is a Lumpy quantity. <br></br>
                  <input type="button" style="background-color:green" name="goto2" value="< Back" onclick="goback();"/>
+                 <input type="hidden" id="variableFixed2" name="variableFixed2">
                  <input class="btn btn-primary" type="submit"  name="goto" value="Next >>"/>
                  <input class="btn btn-primary" type="button" name="cancel" value="Cancel" onclick="cancelout();"/>
+                 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+                 <script type="text/javascript">
+                  $("form").submit(function(){
+                  x = $('input[name="variableFixed"]:checked').val();
+                  document.getElementById('variableFixed2').value = x;
+                  });
+                 </script>
+
                  </form>
 
              {% else %}
                  <form method="post" id="form" action="/project/programs/costs/summary.html" >
                  <style type="text/css"> ul {list-style:none} </style>
-                 {% csrf_token %} 
-                 {{ form }}
+                 {% csrf_token %}
+                 {{ form.non_field_errors }}
+                 {{ form.errors }} 
+                 Quantity of ingredient needed: {{ form.quantityUsed }}
+                 </br></br>
+                 Does this number stay fixed even if number of participants change? {{ form.variableFixed }}
                  </br> 
                  <input type="button" style="background-color:green" name="goto2" value="< Back" onclick="goback();"/>
                  <input class="btn btn-primary" type="submit"  name="goto" value="Next >>"/>

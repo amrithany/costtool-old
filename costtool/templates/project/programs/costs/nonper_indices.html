@@ -4,6 +4,7 @@
 
 <div class="hero-unit">
     <div class="container">
+             <form class="form-signin span8" id="form" method="post"  enctype="multipart/form-data">
              {% csrf_token %}
              <h2 class="form-signin-heading">Add ingredient</h2>
              Use unit measure converter to adjust unit of measure if needed.
@@ -16,6 +17,8 @@
                 <tr> Price per unit: <input type="text" id="price" readonly> </tr><br /><br />
                  If you want to convert your price per unit to a different unit:
                 <br /> <input type="button" style="background-color:green" name="goto3" value="Unit Measure Converter" onclick="unitmeasure();"/> <br /><br />
+                {{ form.non_field_errors }}
+                {{ form.errors }}
                 <tr> Lifetime of the asset:  {{form.lifetimeAsset}} </tr><br />
                 <tr> Interest rate: {{form.interestRate}} </tr><br />
                 <br /> Is the price a national average or a local price? <br />
@@ -24,8 +27,9 @@
                 <tr> Source: {{price.sourcePriceData}} </tr><br />
              </table> 
              <input type="button" style="background-color:green" name="goto2" value="< Back" onclick="back();"/>
-             <input type="button" style="background-color:green" name="goto" value="Next >>" onclick="Pass();" />
+             <input type="submit" style="background-color:green" name="goto" value="Next >>" onclick="Pass();" />
              <input class="btn btn-primary" type="button" name="cancel" value="Cancel" onclick="cancelout();"/>
+             </form>
            <script type="text/javascript">
 
              if ({{new_price}} != 0){

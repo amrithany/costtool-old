@@ -32,19 +32,20 @@
        <div class="tab-pane active" id="form1">
             <form class="form-signin span8" id="form1" method="post"  enctype="multipart/form-data">
              {% csrf_token %}
+             {{form1.errors}}
              {% crispy frm1 %}
              <div id="extra-content">
              <table>
                 <thead>
                   <tr>
                      <th>Year</th>
-                     <th>Number of participants</th>
+                     <th>Number of participants per year</th>
                   </tr>
                 </thead>
                 <tbody class="product-instances">
                   <form method="post" action="">
                   {{ partform.management_form }}
-
+                  {{partform.errors}}
                   {% for form in partform %}
                         {{ form.id }}
                       <tr>
@@ -56,7 +57,7 @@
                  </tbody>
              </table>
              </div>
-             <input class="btn btn-primary" type="submit" name="submit" value="Save" />
+             <input class="btn btn-primary" type="submit" name="submit1" id="submit1" value="Save" />
              <input class="btn btn-primary" type="button" name="cancel" value="Cancel" onclick="cancelout();"/>
 
              </form>
@@ -66,7 +67,8 @@
             <form class="form-signin span8" id="form2" method="post" enctype="multipart/form-data">
              {% csrf_token %}
                 {% crispy frm2 %}
-                <input class="btn btn-primary" type="submit" name="submit" value="Save" />
+                {{effectform.errors}}
+                <input class="btn btn-primary" type="submit" name="submit" id="submit" value="Save" />
                 <input class="btn btn-primary" type="button" name="cancel" value="Cancel" onclick="cancelout();"/>
              </form>
         </div>
@@ -76,13 +78,17 @@
              <p style="white-space:pre-wrap; width:90ex">
              Click the Add Ingredient button to start adding ingredients for which there are prices available in CBCSE database of Educational Resource Prices or in Database My Prices. You can take a look at these databases or add new prices in the "Prices" Tab. You can define which price database to use in the "Settings" Tab.</p>
              <input class="btn btn-primary" type="button" name="cost" value="Add ingredient" onclick="search();"/>
-             <input class="btn btn-primary" type="button" name="comp" value="See Complete table" onclick="completetable();"/>
+             <input class="btn btn-primary" type="submit" name="editIng" value="Save ingredient"/>
+             <input class="btn btn-primary" type="button" name="duplIng" value="Delete ingredient" onclick="PasstoDel();"/>
+             <input class="btn btn-primary" type="button" name="duplIng" value="Duplicate ingredient" onclick="PasstoDupl();"/></br>
+             <input style="background-color:orange" type="button" name="comp2" value="See Complete table" onclick="completetable2();"/>
              <input class="btn btn-primary" type="button" name="cancel" value="Cancel" onclick="cancelout();"/>
              <input type="hidden" id="activeTab" name="temp2" value="program" />
 
             <table>
             <thead>
             <tr>
+              <th></th>
               <th>Ingredients</th>
               <th>Quantity of Ingredient</th>
               <th>Unit of measure</th>
@@ -93,27 +99,28 @@
               <th>Cost per participant</th>
             </tr>
             </thead>
-            <form method="post" id="frm3"  enctype="multipart/form-data">
+            <form method="post" id="frm3">
             <tbody class="product-instances">
              {% csrf_token %}
              {{ frm3.management_form }}
              {% for form in frm3 %}
+             {{ ingform.errors }}
              {{ form.id }}
-             <tr>
-                <td>{{ form.ingredient }}</td>
+             <tr> 
+                <td><input type="checkbox" id="{{form.initial.id}}" value="unchecked" onclick="setId(this);"></td>
+                <td>{{ form.ingredient }} </td>
                 <td>{{ form.quantityUsed }}</td>
                 <td>{{ form.newMeasure }}</td>
                 <td>{{ form.variableFixed }}</td>
                 <td>{{ form.convertedPrice }}</td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <td>{{ form.costPerIngredient }}</td>
+                <td>{{ form.percentageCost }}</td>
+                <td>{{ form.costPerParticipant }}</td>
              </tr>
              {% endfor %}
 
              </tbody>
              </table>
-
              </form>
         </div>
 
@@ -121,21 +128,56 @@
       <script type="text/javascript">
            var proj = {{project.id}};
            var prog = {{program.id}};
+           var passvar = 000;
+           function setId(chkBox){
+              var inputs = document.getElementsByTagName("input");
+              for (i = 0; i<inputs.length; i++ ) {
+                  if (inputs[i].type == 'checkbox'){
+                      if (inputs[i].id != chkBox.id) {
+                          inputs[i].checked = false;
+                      }
+                          else { inputs[i].checked = true;}
+                      }
+                   }
+              passvar = chkBox.id;
+           }
+
+
+           function PasstoDel () {
+              if (passvar == 000){
+                 alert('Select an Ingredient to delete');}
+              else {
+                 if (confirm('Are you sure you want to delete this ingredient?')) {
+                    document.location.href = "/project/programs/costs/" + passvar + "/del_ingredient.html";
+               }}
+            }
+
+           function PasstoDupl () {
+              if (passvar == 000){
+                 alert('Select an Ingredient to duplicate');}
+              else {
+                 if (confirm('Are you sure you want to duplicate this ingredient?')) {
+                    document.location.href = "/project/programs/costs/" + passvar + "/dupl_ingredient.html";
+               }}
+            }
+
            function cancelout() {
               document.location.href = "/project/programs/"  + proj + "/program_list.html";
            }
 
-           function completetable() {
-              document.location.href = "/project/programs/costs/comp_table.html";
-           }
+           //function completetable() {
+             // document.location.href = "/project/programs/costs/comp_table.html";
+           //}
 
+           function completetable2() {
+              document.location.href = "/project/programs/costs/full_table.html";
+           }
 
            function search() {
               document.location.href = "/project/programs/costs/search_costs.html";
            }
 
            function ShowQueryString(addr) {
-
             activeform = addr.split("?")[1].split("=")[1];
             document.getElementById("activeTab").value = activeform;
            }
@@ -143,17 +185,28 @@
            $("form").ready(function() {
               wref = window.location.href;
               windex = wref.indexOf('costform');
-              if (windex != -1){
+              efindex = wref.indexOf('effform');
+              if ((windex != -1) || (efindex != -1)){
                  ShowQueryString(wref);
               }
               anal  = document.getElementById("myField").value;
-              activeform = document.getElementById("activeTab").value;
+              if ( '{{active}}' != '') {
+                 activeform = '{{active}}';
+              }
+              else {
+                 activeform = document.getElementById("activeTab").value;
+              }
+
               if (activeform == 'costform') {
                  $('#myTab a[href="#form3"]').tab('show');
+              }
+              else if (activeform == 'effform') {
+                 $('#myTab a[href="#form2"]').tab('show');
               }
               else {
                  $('#myTab a[href="#form1"]').tab('show');
               }
+
               if (anal != 'Cost-Effectiveness Analysis') {
                   $($('.nav-tabs').find("li")[1]).hide();
                   $($('.nav-tabs').find('#form2')).hide();
@@ -191,16 +244,11 @@
                  }
 
            });
-           $("form").submit(function(){
-           //  alert(parseInt($('#id_' + ParticipantsPerYear + '-TOTAL_FORMS').val()));
-             //event.preventDefault();
-          });
+           //$("form").submit(function(){
+             //yrs = document.getElementById('id_numberofyears').value;
+             //x = document.getElementById('id_lengthofprogram').value;
+          //});
 
-          function tempfunc(){
-             //var ttt = $('#id_' + form.prefix + '-TOTAL_FORMS').val();
-             //var form_count = {{partform.total_form_count}};
-             alert(participantsperyear_set-0-id);
-          }
       </script>  
       </div><!-- end content -->
    </div><!-- end row -->

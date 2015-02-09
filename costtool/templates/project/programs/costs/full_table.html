@@ -1,0 +1,117 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block body_block %}
+
+<div class="hero-unit">
+<h3 class="form-signin-heading">Complete table of  Ingredients</h3>
+<div id="sheetParent" title="Complete table of Ingredients">
+<form class="form-signin span8" id="form1" method="post"  enctype="multipart/form-data">
+{% csrf_token %}
+    <table title="Ingredients" class="table table-condensed">
+        <tbody>
+            <tr>
+                <td><b>Category</b></td>
+                <td><b>Ingredient Name</b></td>
+                <td><b>Original Price</b></td>
+                <td><b>Original Unit of Measure</b></td>
+                <td><b>Converted Unit of Measure</b></td>
+                <td><b>Year Quantity Used</b></td>
+                <td><b>Quantity Used</b></td>
+                <td><b>Lifetime Asset</b></td>
+                <td><b>Interest Rate</b></td>
+                <td><b>Price</b></td>
+                <td><b>PriceAdjAmortization</b></td>
+                <td><b>Benefit Rate</b></td>
+                <td><b>PriceAdjBenefits</b></td>
+                <td><b>Percentage of Usage</b></td>
+                <td><b>Year Price</b></td>
+                <td><b>IndexCPI of Year Price</b></td>
+                <td><b>PriceAdjInflation</b></td>
+                <td><b>State Price</b></td>
+                <td><b>Area Price</b></td>
+                <td><b>Geographical Index of State Price & Area Price</b></td>
+                <td><b>PriceAdjGeographicalArea</b></td>
+                <td><b>Price Net Present Value</b></td>
+                <td><b>AdjPricePerIngredient</b></td>
+                <td><b>Cost Per Ingredient</b></td>
+                <td><b>Ed Level of Price</b></td>
+                <td><b>Sector of Price</b></td>
+                <td><b>URL of Price</b></td>
+                <td><b>Source of Price<b></td>
+                <td><b>Source of Benefit Rate</b></td>
+            </tr>
+
+            {% for i in ingredients  %}
+            <tr> 
+                <td>{{ i.category }}</td>
+	        <td><div id="ingredient{{i.id}}" contenteditable>{{ i.ingredient }}</div></td>
+	        <td>{{ i.price }}</td>
+	        <td>{{ i.unitMeasurePrice }}</td>
+	        <td>{{ i.newMeasure }}</td>
+	        <td><div id="yearQtyUsed{{i.id}}" contenteditable>{{ i.yearQtyUsed }}</div></td>
+                <td><div id="quantityUsed{{i.id}}" contenteditable>{{ i.quantityUsed }}</div></td>
+	        <td><div id="lifetimeAsset{{i.id}}" contenteditable>{{ i.lifetimeAsset }}</div></td>
+	        <td><div id="interestRate{{i.id}}" contenteditable>{{ i.interestRate }}</div></td>
+	        <td>{{ i.convertedPrice }}</td>
+                <td>{{ i.priceAdjAmortization }}</td> 
+                <td><div id="benefitRate{{i.id}}" contenteditable>{{ i.benefitRate }}</div></td>
+                <td>{{ i.priceAdjBenefits }}</td>
+                <td><div id="percentageofUsage{{i.id}}" contenteditable>{{ i.percentageofUsage }}</div></td>
+                <td>{{ i.yearPrice }}</td>
+                <td>{{ i.indexCPI }}</td>
+                <td>{{ i.priceAdjInflation }}</td>
+                <td>{{ i.statePrice }}</td>
+                <td>{{ i.areaPrice }}</td>
+                <td>{{ i.geoIndex }}</td>
+                <td>{{ i.priceAdjGeographicalArea }}</td>
+                <td>{{ i.priceNetPresentValue }}</td>
+                <td>{{ i.adjPricePerIngredient }}</td>
+                <td>{{ i.costPerIngredient }}</td>
+                <td>{{ i.edLevel }}</td>
+                <td>{{ i.sector }}</td>
+                <td>{{ i.urlPrice }}</td>
+                <td>{{ i.sourcePriceData }}</td>
+                <td>{{ i.SourceBenefitData }}</td>
+                <td style="display:none;"> {{i.id}} </td>
+            </tr>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript">
+
+    $("form").submit(function (e) {
+       e.preventDefault();
+
+       $.ajax({
+                 type:"POST",
+                 url:"/project/programs/costs/full_table.html",
+                 data: {
+                        csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+                        'id':{{i.id}},
+                        'ingredient':$('#ingredient{{i.id}}').html(),
+                        'yearQtyUsed':$('#yearQtyUsed{{i.id}}').html(),
+                        'quantityUsed': $('#quantityUsed{{i.id}}').html(),
+                        'lifetimeAsset':$('#lifetimeAsset{{i.id}}').html(),
+                        'interestRate':$('#interestRate{{i.id}}').html(),
+                        'benefitRate':$('#benefitRate{{i.id}}').html(),
+                        'percentageofUsage':$('#percentageofUsage{{i.id}}').html()
+                        },
+                 success: function(){
+                    }
+            });
+            return false;
+
+    });
+
+    function cancelout() {
+       document.location.href = "/project/programs/effect/"+ {{project_id}} +"/"+ {{program_id}} +"/tabbedview.html?activeform=costform";
+    }
+
+</script>
+{% endfor %}
+</tbody>
+</table>
+<input class="btn btn-primary" type="submit" name="submit" id="submit" value="Save"/>
+<input class="btn btn-primary" type="button" name="cancel" value="Cancel" onclick="cancelout();"/>
+</form>
+</div>
+</div>
+{% endblock %}
